@@ -15,5 +15,5 @@ class Student(Base):
     city = Column(String)
     state = Column(String, ForeignKey('state.state'))
     dorm = Column(String, ForeignKey('dorm.dorm'))
-    sexualOrientation = Column(String)
-    genderIdentity = Column(String)
+    sexualorientation = Column(String)
+    genderidentity = Column(String)

@@ -2,12 +2,12 @@
 
 import falcon
 
-from .resources.dorm.resource import DormResource
-from .resources.major.resource import MajorResource 
-from .resources.mass.resource import MassResource 
-from .resources.minor.resource import MinorResource 
-from .resources.state.resource import StateResource 
-from .resources.student.resource import StudentResource
+from .modules.dorm.resource import DormResource
+from .modules.major.resource import MajorResource
+from .modules.mass.resource import MassResource
+from .modules.minor.resource import MinorResource
+from .modules.state.resource import StateResource
+from .modules.student.resource import StudentResource
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -23,12 +23,12 @@ def create_api():
     api = application = falcon.API()
 
     # Create instance for each resource
-    dorm = DormResource(Session)
-    minor = MinorResource(Session)
-    major = MajorResource(Session)
-    mass = MassResource(Session)
-    state = StateResource(Session)
-    student = StudentResource(Session)
+    dorm        = DormResource(Session)
+    minor       = MinorResource(Session)
+    major       = MajorResource(Session)
+    mass        = MassResource(Session)
+    state       = StateResource(Session)
+    student     = StudentResource(Session)
 
     # Connect to resources
     api.add_route('/dorms', dorm)
