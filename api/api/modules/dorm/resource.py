@@ -10,6 +10,5 @@ class DormResource(object):
 
     # Get list of all dorm info
     def on_get(self, req, resp):
-
-            resp.media = self.db.get_dorms() 
-            resp.status = falcon.HTTP_200
+        resp.media = self.db.get_dorms()
+        resp.status = falcon.HTTP_200

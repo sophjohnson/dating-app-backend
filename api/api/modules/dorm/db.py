@@ -1,8 +1,3 @@
-import binascii
-import hashlib
-import os
-import uuid
-
 from ...models.dorm import Dorm 
 from ...utils import SessionMaker
 
@@ -11,7 +6,7 @@ class db:
     def __init__(self, Session):
         self.Session = Session
 
-    # Get dorms 
+    # Get dorms
     def get_dorms(self):
         sm = SessionMaker(self.Session)
         with sm as session:

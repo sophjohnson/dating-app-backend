@@ -3,9 +3,8 @@ import hashlib
 import os
 import uuid
 
-from ...models.student import Student 
+from ...models.student import Student
 from ...utils import SessionMaker
-
 
 class db:
 
@@ -17,11 +16,11 @@ class db:
         sm = SessionMaker(self.Session)
         with sm as session:
             student = session.query(Student.netid).filter_by(netid=id).scalar()
-         
+
         return student is not None
 
    # Create new account
-    def add_student(self, body):
+    def create_student(self, body):
 
         # Hash password
         password = hash_password(body['password'])
@@ -30,9 +29,39 @@ class db:
         sm = SessionMaker(self.Session)
         with sm as session:
             student = Student(
-                netid=body['netid'],
-                password=password
+                netid = body['netid'],
+                password = password,
+                firstname = body['firstName'],
+                lastname = body['lastname'],
+                classyear = body['classYear'],
+                city = body['city'],
+                state = body['state'],
+                dorm = body['dorm'],
+                sexualorientation = body['sexualOrientation'],
+                genderidentity = body['genderIdentity']
+            )
+            session.add(student)
+            session.commit()
 
+            return student.netid
+
+   # Update existing account
+    def update_student(self, body):
+
+        # Create account and profile
+        sm = SessionMaker(self.Session)
+        with sm as session:
+            student = Student(
+                netid = body['netid'],
+                password = password,
+                firstname = body['firstName'],
+                lastname = body['lastname'],
+                classyear = body['classYear'],
+                city = body['city'],
+                state = body['state'],
+                dorm = body['dorm'],
+                sexualorientation = body['sexualOrientation'],
+                genderidentity = body['genderIdentity']
             )
             session.add(student)
             session.commit()
