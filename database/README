@@ -1,0 +1,5 @@
+Sophie Johnson
+2/29/20
+Adv. Databases HW4
+
+Run ./build.sh to create all tables and load data from the files in the subdirectory `csv/`. Note, the script is written for a user called "guest" with a password of "password". All logs are written to the `logs/` subdirectory.
