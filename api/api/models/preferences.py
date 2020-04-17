@@ -8,10 +8,6 @@ class Preferences(Base):
 
     # Describe columns
     netid = Column(String, primary_key=True, ForeignKey('student.netid'))
-    sexualOrientation = Column(String)
-    genderIdentity = Column(String)
     mass = Column(String)
     dh = Column(String)
     fridayNights = Column(String)
-    password = Column(String)
-
