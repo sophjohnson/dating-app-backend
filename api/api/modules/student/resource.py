@@ -49,12 +49,7 @@ class StudentResource(object):
             msg = "Must send request body."
             raise HTTPBadRequest("Bad Request", msg)
 
-        # Check request body
-        if not is_valid(body):
-            msg = "Missing or incorrect parameters."
-            raise HTTPBadRequest("Bad Request", msg)
-
-        # Check if student already exists
+        # Check if student does not exists
         if not self.db.student_exists(body['netid']):
             msg = "No student exists for given netid."
             raise HTTPBadRequest("Bad Request", msg)
@@ -71,9 +66,9 @@ def is_valid(body):
     necessaryParams = {
         'netid',
         'password',
-        'firstname',
-        'lastname',
-        'classYear',
+        'firstName',
+        'lastName',
+        'gradYear',
         'city',
         'state',
         'dorm',

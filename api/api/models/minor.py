@@ -11,4 +11,4 @@ class Minor(Base):
 
     # Initialization
     def __init__(self, minor):
-        self.minor = minor 
+        self.minor = minor

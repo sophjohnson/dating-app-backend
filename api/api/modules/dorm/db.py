@@ -1,4 +1,4 @@
-from ...models.dorm import Dorm 
+from ...models.dorm import Dorm
 from ...utils import SessionMaker
 
 class db:
@@ -11,9 +11,9 @@ class db:
         sm = SessionMaker(self.Session)
         with sm as session:
             dorms = session.query(Dorm).all()
-            dorms = [{ 'dorm'               : s.dorm,
-                       'mascot'             : s.mascot,
-                       'quad'               : s.quad,
-                       'logo'               : s.logo,
-                       'airConditioning'    : s.airconditioning } for s in dorms]
+            dorms = [{ 'dorm'               : d.dorm,
+                       'mascot'             : d.mascot,
+                       'quad'               : d.quad,
+                       'logo'               : d.logo,
+                       'airConditioning'    : d.airconditioning } for d in dorms]
         return dorms

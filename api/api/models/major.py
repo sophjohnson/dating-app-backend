@@ -11,4 +11,4 @@ class Major(Base):
 
     # Initialization
     def __init__(self, major):
-        self.major = major 
+        self.major = major

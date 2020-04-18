@@ -7,14 +7,7 @@ class Mass(Base):
     __tablename__ = 'mass'
 
     # Describe columns
-    massid = Column(String, primary_key=True)
-    location = Column(String)
-    day = Column(String)
-    time = Column(String)
-
-    # Initialization
-    def __init__(self, massid, location, day, time):
-        self.massid = massid
-        self.location = location 
-        self.day = day 
-        self.time = time 
+    massid      = Column(String, primary_key=True)
+    location    = Column(String)
+    day         = Column(String)
+    time        = Column(String)

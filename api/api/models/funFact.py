@@ -7,14 +7,7 @@ class FunFact(Base):
     __tablename__ = 'funfact'
 
     # Describe columns
-    id = Column(Integer, primary_key=True)
-    netid = Column(String, ForeignKey('student.netid'))
+    id      = Column(Integer, primary_key=True)
+    netid   = Column(String, ForeignKey('student.netid'))
     caption = Column(String)
-    photo = Column(String)
-
-    # Initialization
-    def __init__(self, id, netid, caption, photo):
-        self.id = id 
-        self.netid = netid
-        self.caption = caption
-        self.photo = photo
+    photo   = Column(String)

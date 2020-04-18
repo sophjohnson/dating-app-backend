@@ -10,10 +10,5 @@ class State(Base):
     __tablename__ = 'state'
 
     # Describe columns
-    state = Column(String, primary_key=True)
-    code = Column(String)
-
-    # Initialization
-    def __init__(self, code, state):
-        self.code = code
-        self.state = state 
+    state   = Column(String, primary_key=True)
+    code    = Column(String)

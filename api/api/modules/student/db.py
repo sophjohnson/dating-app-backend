@@ -22,23 +22,20 @@ class db:
    # Create new account
     def create_student(self, body):
 
-        # Hash password
-        password = hash_password(body['password'])
-
         # Create account and profile
         sm = SessionMaker(self.Session)
         with sm as session:
             student = Student(
-                netid = body['netid'],
-                password = password,
-                firstname = body['firstName'],
-                lastname = body['lastname'],
-                classyear = body['classYear'],
-                city = body['city'],
-                state = body['state'],
-                dorm = body['dorm'],
-                sexualorientation = body['sexualOrientation'],
-                genderidentity = body['genderIdentity']
+                netid           = body['netid'],
+                password        = hash_password(body['password']),
+                firstname       = body['firstName'],
+                lastname        = body['lastName'],
+                gradyear        = body['gradYear'],
+                city            = body['city'],
+                state           = body['state'],
+                dorm            = body['dorm'],
+                orientation     = body['sexualOrientation'],
+                identity        = body['genderIdentity']
             )
             session.add(student)
             session.commit()
@@ -51,19 +48,23 @@ class db:
         # Create account and profile
         sm = SessionMaker(self.Session)
         with sm as session:
-            student = Student(
-                netid = body['netid'],
-                password = password,
-                firstname = body['firstName'],
-                lastname = body['lastname'],
-                classyear = body['classYear'],
-                city = body['city'],
-                state = body['state'],
-                dorm = body['dorm'],
-                sexualorientation = body['sexualOrientation'],
-                genderidentity = body['genderIdentity']
-            )
-            session.add(student)
+
+            student = session.query(Student).filter(Student.netid == body["netid"]).first()
+
+            # If update password
+            if 'password' in body:
+                password = hash_password(body['password']),
+
+            # Handle other updates
+            student.firstname       = body.get('firstName', student.firstname)
+            student.lastname        = body.get('lastName', student.lastname)
+            student.gradyear        = body.get('gradYear', student.gradyear)
+            student.city            = body.get('city', student.city)
+            student.state           = body.get('state', student.state)
+            student.dorm            = body.get('dorm', student.dorm)
+            student.orientation     = body.get('sexualOrientation', student.orientation)
+            student.identity        = body.get('genderIdentity', student.identity)
+
             session.commit()
 
             return student.netid
@@ -73,9 +74,9 @@ class db:
         sm = SessionMaker(self.Session)
         with sm as session:
             students = session.query(Student).all()
-            students = [{ 'netid' : s.netid,
-                          'firstName' : s.firstname,
-                          'lastName' : s.lastname } for s in students]
+            students = [{ 'netid'       : s.netid,
+                          'firstName'   : s.firstname,
+                          'lastName'    : s.lastname    } for s in students]
         return students
 
 def hash_password(password):
