@@ -8,7 +8,3 @@ class Major(Base):
 
     # Describe columns
     major = Column(String, primary_key=True)
-
-    # Initialization
-    def __init__(self, major):
-        self.major = major

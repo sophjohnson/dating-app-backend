@@ -8,7 +8,3 @@ class Minor(Base):
 
     # Describe columns
     minor = Column(String, primary_key=True)
-
-    # Initialization
-    def __init__(self, minor):
-        self.minor = minor
