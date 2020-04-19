@@ -4,6 +4,8 @@ import os
 import uuid
 
 from ...models.student import Student
+from ...models.major import Major
+from ...models.minor import Minor
 from ...utils import SessionMaker
 
 class db:
@@ -34,6 +36,8 @@ class db:
                 city            = body['city'],
                 state           = body['state'],
                 dorm            = body['dorm'],
+                majors          = self.unpack_majors(body['majors']),
+                minors          = self.unpack_minors(body['minors']),
                 orientation     = body['sexualOrientation'],
                 identity        = body['genderIdentity']
             )
@@ -55,6 +59,12 @@ class db:
             if 'password' in body:
                 password = hash_password(body['password']),
 
+            if 'majors' in body:
+                student.majors = self.unpack_majors(body['majors'])
+
+            if 'minors' in body:
+                student.minors = self.unpack_minors(body['minors'])
+
             # Handle other updates
             student.firstname       = body.get('firstName', student.firstname)
             student.lastname        = body.get('lastName', student.lastname)
@@ -75,9 +85,23 @@ class db:
         with sm as session:
             students = session.query(Student).all()
             students = [{ 'netid'       : s.netid,
-                          'firstName'   : s.firstname,
+                          'majors'      : [ m.major for m in s.majors ],
+                          'minors'      : [ m.minor for m in s.minors ],
                           'lastName'    : s.lastname    } for s in students]
         return students
+
+    # Get major objects
+    def unpack_majors(self, majors):
+        sm = SessionMaker(self.Session)
+        with sm as session:
+            return [ session.query(Major).filter(Major.major == m).first() for m in majors ]
+
+    # Get minor objects
+    def unpack_minors(self, minors):
+        sm = SessionMaker(self.Session)
+        with sm as session:
+            minors = [ session.query(Minor).filter(Minor.minor == m).first() for m in minors ]
+            return [ m for m in minors if m is not None]
 
 def hash_password(password):
     salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')

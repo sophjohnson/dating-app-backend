@@ -1,5 +1,17 @@
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, String, ForeignKey, Table
+from sqlalchemy.orm import relationship
+
 from .base import Base
+
+studentMajor = Table('studentmajor', Base.metadata,
+    Column('netid', String, ForeignKey('student.netid'), primary_key=True),
+    Column('major', String, ForeignKey('major.major'), primary_key=True)
+)
+
+studentMinor = Table('studentminor', Base.metadata,
+    Column('netid', String, ForeignKey('student.netid'), primary_key=True),
+    Column('minor', String, ForeignKey('minor.minor'), primary_key=True)
+)
 
 class Student(Base):
 
@@ -15,5 +27,7 @@ class Student(Base):
     city            = Column(String)
     state           = Column(String, ForeignKey('state.state'))
     dorm            = Column(String, ForeignKey('dorm.dorm'))
+    majors          = relationship("Major", secondary=studentMajor)
+    minors          = relationship("Minor", secondary=studentMinor)
     orientation     = Column(String)
     identity        = Column(String)
