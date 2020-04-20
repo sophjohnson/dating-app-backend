@@ -1,5 +1,5 @@
 import ujson
-from falcon import HTTPBadRequest, HTTP_200
+from falcon import HTTPBadRequest, HTTPError, HTTP_200
 from ...utils import SessionMaker
 from ...models.student import Student
 from .db import db
@@ -16,32 +16,40 @@ class FunFactResource(object):
     # Creates fun fact
     def on_post(self, req, resp, netid):
 
-        # Make sure body exists
-        try:
-            body = ujson.loads(req.stream.read())
-        except ValueError:
-            msg = "Must send request body."
+        if 'caption' not in req.params:
+            msg = "Must send caption."
             raise HTTPBadRequest("Bad Request", msg)
 
-        # Check request body
-        if not is_valid(body):
-            msg = "Missing or incorrect parameters."
-            raise HTTPBadRequest("Bad Request", msg)
-
-        # Add student
-        id = self.db.add_fun_fact(body, netid)
+        # Add fun fact
+        id = self.db.add_fun_fact(req, netid)
 
         # On success
         resp.media = {'funFactID': id}
         resp.status = HTTP_200
 
-# Verify validity of request
-def is_valid(body):
-    valid = True
-    necessaryParams = {
-        'caption',
-        'photo'
-    }
-    passedParams = set(body.keys())
+class FunFactSpecificResource(object):
 
-    return necessaryParams == passedParams
+    def __init__(self, Session):
+        self.db = db(Session)
+
+    # Updates existing fun fact
+    def on_put(self, req, resp, netid, id):
+
+        if 'caption' not in req.params:
+            msg = "Must send caption."
+            raise HTTPBadRequest("Bad Request", msg)
+
+        # Update fun fact
+        id = self.db.update_fun_fact(req, netid, id)
+
+        resp.media = {'funFactID': id}
+        resp.status = HTTP_200
+
+    # Delete fun fact
+    def on_delete(self, req, resp, netid, id):
+        if not self.db.delete_fun_fact(netid, id):
+            msg = "Failed to delete fun fact."
+            raise HTTPError("Error", msg)
+
+        resp.media = {'deletedFunFact': id}
+        resp.status = HTTP_200

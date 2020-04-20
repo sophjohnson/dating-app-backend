@@ -3,10 +3,14 @@ import hashlib
 import os
 import uuid
 
+from falcon import HTTPBadRequest
+
 from ...models.student import Student
+from ...models.preferences import Preferences
 from ...models.major import Major
 from ...models.minor import Minor
 from ...utils import SessionMaker
+
 
 class db:
 
@@ -17,7 +21,7 @@ class db:
     def student_exists(self, id):
         sm = SessionMaker(self.Session)
         with sm as session:
-            student = session.query(Student.netid).filter_by(netid=id).scalar()
+            student = session.query(Student.netid).filter(Student.netid == id).scalar()
 
         return student is not None
 
@@ -44,20 +48,31 @@ class db:
             session.add(student)
             session.commit()
 
+            # Add preferences
+            preferences = Preferences(
+                netid   = body['netid'],
+                dh      = body['dh'],
+                friday  = body['fridayNights'],
+                mass    = body['attendsMass']
+            )
+            session.add(preferences)
+            session.commit()
+
             return student.netid
 
-   # Update existing account
-    def update_student(self, body):
+   # Update existing student account
+    def update_student(self, body, netid):
 
         # Create account and profile
         sm = SessionMaker(self.Session)
         with sm as session:
 
-            student = session.query(Student).filter(Student.netid == body["netid"]).first()
+            student = session.query(Student).filter(Student.netid == netid).first()
 
-            # If update password
-            if 'password' in body:
-                password = hash_password(body['password']),
+            # If student doesn't exist
+            if student is None:
+                msg = "No student exists for given netid."
+                raise HTTPBadRequest("Bad Request", msg)
 
             if 'majors' in body:
                 student.majors = self.unpack_majors(body['majors'])
@@ -77,24 +92,69 @@ class db:
 
             session.commit()
 
+
+
             return student.netid
 
-    # Get students
-    def get_students(self):
+    # Get all information about student
+    def get_student(self, netid):
         sm = SessionMaker(self.Session)
         with sm as session:
-            students = session.query(Student).all()
-            students = [{ 'netid'       : s.netid,
-                          'funFacts'    : [ self.format_fun_fact(f) for f in s.funfacts ],
-                          'minors'      : [ m.minor for m in s.minors ],
-                          'lastName'    : s.lastname    } for s in students]
-        return students
+
+            result = session.query(Student, Preferences)\
+                                     .join(Preferences, Student.netid == Preferences.netid)\
+                                     .filter(Student.netid == netid).first()
+
+            # If student doesn't exist
+            if result is None:
+                msg = "No student exists for given netid."
+                raise HTTPBadRequest("Bad Request", msg)
+
+            (student, pref) = result
+
+            student = { 'netid'             : student.netid,
+                        'firstName'         : student.firstname,
+                        'lastName'          : student.lastname,
+                        'gradYear'          : student.gradyear,
+                        'majors'            : [ m.major for m in student.majors ],
+                        'minors'            : [ m.minor for m in student.minors ],
+                        'city'              : student.city,
+                        'state'             : student.state,
+                        'dorm'              : student.dorm,
+                        'sexualOrientation' : student.orientation,
+                        'genderIdentity'    : student.identity,
+                        'funFacts'          : [ self.format_fun_fact(f) for f in student.funfacts ],
+                        'dh'                : pref.dh,
+                        'fridayNights'      : pref.friday,
+                        'attendsMass'       : pref.mass }
+
+        return student
+
+    # Get only profile information for viewing
+    def get_profile(self, netid):
+        sm = SessionMaker(self.Session)
+        with sm as session:
+
+            student = session.query(Student).filter(Student.netid == netid).first()
+
+            student = { 'netid'             : student.netid,
+                        'firstName'         : student.firstname,
+                        'lastName'          : student.lastname,
+                        'gradYear'          : student.gradyear,
+                        'majors'            : [ m.major for m in student.majors ],
+                        'minors'            : [ m.minor for m in student.minors ],
+                        'city'              : student.city,
+                        'state'             : student.state,
+                        'dorm'              : student.dorm,
+                        'funFacts'          : [ self.format_fun_fact(f) for f in student.funfacts ] }
+
+        return student
 
     def format_fun_fact(self, funFact):
         funFact = { 'id'      : funFact.id,
                     'netid'   : funFact.netid,
                     'caption' : funFact.caption,
-                    'photo'   : funFact.photo }
+                    'image'   : funFact.image }
 
         return funFact
 
@@ -102,7 +162,8 @@ class db:
     def unpack_majors(self, majors):
         sm = SessionMaker(self.Session)
         with sm as session:
-            return [ session.query(Major).filter(Major.major == m).first() for m in majors ]
+            majors = [ session.query(Major).filter(Major.major == m).first() for m in majors ]
+            return [ m for m in majors if m is not None]
 
     # Get minor objects
     def unpack_minors(self, minors):

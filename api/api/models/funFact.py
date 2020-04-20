@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy import Column, String, Integer, BLOB, ForeignKey
 from .base import Base
 
 class FunFact(Base):
@@ -10,4 +10,4 @@ class FunFact(Base):
     id      = Column(Integer, primary_key=True)
     netid   = Column(String, ForeignKey('student.netid'))
     caption = Column(String)
-    photo   = Column(String)
+    image   = Column(String)
