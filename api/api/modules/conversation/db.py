@@ -1,4 +1,5 @@
 from ...models.conversation import Conversation
+from ...models.student import Student
 from ...models.message import Message
 from ...utils import SessionMaker, format_time
 from sqlalchemy import desc, and_
@@ -52,31 +53,38 @@ class db:
         sm = SessionMaker(self.Session)
         with sm as session:
             # Get all conversations
-            conversations = (session.query(Conversation.id, Conversation.student1.label("netid"))\
+            conversations = (session.query(Conversation.id, Conversation.student1.label('netid'), Student.firstname.label('first'), Student.lastname.label('last'))\
+                                    .join(Student, Student.netid == Conversation.student1)\
                                     .filter(Conversation.student2.like(netid)))\
                                     .union\
-                            (session.query(Conversation.id, Conversation.student2.label("netid"))\
+                            (session.query(Conversation.id, Conversation.student2.label('netid'), Student.firstname.label('first'), Student.lastname.label('last'))\
+                                    .join(Student, Student.netid == Conversation.student2)\
                                     .filter(Conversation.student1.like(netid)))\
                                     .all()
 
-        conversations = [ self.get_details(c.id) for c in conversations]
+        conversations = [ self.get_details(c) for c in conversations]
 
         return conversations
 
     # Get all conversations for given netid
-    def get_details(self, id):
+    def get_details(self, c):
 
         sm = SessionMaker(self.Session)
         with sm as session:
             lastMessage = session.query(Message)\
-                                 .filter(Message.conversation == id)\
+                                 .filter(Message.conversation == c.id)\
                                  .order_by(desc(Message.timestamp))\
                                  .first()
 
             details = {
+                'id'        : c.id,
+                'firstName' : c.first,
+                'lastName'  : c.last,
                 'sender'    : lastMessage.sender,
                 'receiver'  : lastMessage.receiver,
                 'content'   : lastMessage.content,
                 'timestamp' : format_time(lastMessage.timestamp) }
+
+        #details['name'] = self.sdb.get_student(c.netid)
 
         return details

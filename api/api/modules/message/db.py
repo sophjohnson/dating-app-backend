@@ -1,6 +1,7 @@
 from ...models.message import Message
-from ...utils import SessionMaker, get_curr_time
+from ...utils import SessionMaker, get_curr_time, format_time
 from ..conversation.db import db as conversation_db
+from sqlalchemy import desc
 
 class db:
 
@@ -29,9 +30,25 @@ class db:
 
             return message.id
 
+    # Get messages from conversation
+    def get_messages(self, params):
+        sm = SessionMaker(self.Session)
+        with sm as session:
 
-#conversations = [{  'id'        : c.id,
-#                    'sender'    : c.sender,
-#                    'receiver'  : c.receiver,
-#                    'content'   : c.content,
-#                    'timestamp' : format_time(c.timestamp) } for c in conversations]
+            # Get conversation id
+            id = self.cdb.get_conversation_id(params['sender'], params['receiver'])
+
+            # Get last 20 messages
+            messages = session.query(Message)\
+                              .filter(Message.conversation == id)\
+                              .order_by(desc(Message.timestamp))\
+                              .limit(20)\
+                              .all()
+
+            messages = [{  'id'        : m.id,
+                           'sender'    : m.sender,
+                           'receiver'  : m.receiver,
+                           'content'   : m.content,
+                           'timestamp' : format_time(m.timestamp) } for m in messages ]
+
+        return messages

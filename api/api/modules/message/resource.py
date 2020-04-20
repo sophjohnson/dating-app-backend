@@ -29,6 +29,12 @@ class MessageResource(object):
         resp.media = {'id': id}
         resp.status = HTTP_200
 
+    # Get all messages in a conversation
+    def on_get(self, req, resp):
+        resp.media = self.db.get_messages(req.params)
+        resp.status = HTTP_200
+
+
 # Verify validity of request
 def is_valid(body):
     necessaryParams = {
