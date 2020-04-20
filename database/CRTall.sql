@@ -2,6 +2,8 @@ prompt *** Creating State Table***
 @CRTstate
 prompt *** Creating Student Table***
 @CRTstudent
+prompt *** Creating Conversation Table***
+@CRTconversation
 prompt *** Creating Course Table***
 @CRTcourse
 prompt *** Creating Dorm Table***
