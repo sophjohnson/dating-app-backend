@@ -85,10 +85,18 @@ class db:
         with sm as session:
             students = session.query(Student).all()
             students = [{ 'netid'       : s.netid,
-                          'majors'      : [ m.major for m in s.majors ],
+                          'funFacts'    : [ self.format_fun_fact(f) for f in s.funfacts ],
                           'minors'      : [ m.minor for m in s.minors ],
                           'lastName'    : s.lastname    } for s in students]
         return students
+
+    def format_fun_fact(self, funFact):
+        funFact = { 'id'      : funFact.id,
+                    'netid'   : funFact.netid,
+                    'caption' : funFact.caption,
+                    'photo'   : funFact.photo }
+
+        return funFact
 
     # Get major objects
     def unpack_majors(self, majors):

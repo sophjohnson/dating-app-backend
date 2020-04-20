@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, ForeignKey, Table
 from sqlalchemy.orm import relationship
+from ..models.funFact import FunFact
 
 from .base import Base
 
@@ -31,3 +32,4 @@ class Student(Base):
     minors          = relationship("Minor", secondary=studentMinor)
     orientation     = Column(String)
     identity        = Column(String)
+    funfacts        = relationship("FunFact", backref="student")

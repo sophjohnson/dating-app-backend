@@ -1,56 +1,35 @@
-import binascii
-import hashlib
-import os
-import uuid
-
-from ...models.student import Student 
+from ...models.funFact import FunFact
 from ...utils import SessionMaker
-
 
 class db:
 
     def __init__(self, Session):
         self.Session = Session
 
-    # Check if netid is taken
-    def student_exists(self, id):
-        sm = SessionMaker(self.Session)
-        with sm as session:
-            student = session.query(Student.netid).filter_by(netid=id).scalar()
-         
-        return student is not None
-
    # Create new account
-    def add_student(self, body):
-
-        # Hash password
-        password = hash_password(body['password'])
+    def add_fun_fact(self, body, netid):
 
         # Create account and profile
         sm = SessionMaker(self.Session)
         with sm as session:
-            student = Student(
-                netid=body['netid'],
-                password=password
-
+            funFact = FunFact(
+                netid   = netid,
+                caption = body['caption'],
+                photo   = body['photo']
             )
-            session.add(student)
+            session.add(funFact)
             session.commit()
 
-            return student.netid
+            return funFact.id
 
-    # Get students
-    def get_students(self):
+    # Get fun facts
+    def get_fun_facts(self, netid):
         sm = SessionMaker(self.Session)
         with sm as session:
-            students = session.query(Student).all()
-            students = [{ 'netid' : s.netid,
-                          'firstName' : s.firstname,
-                          'lastName' : s.lastname } for s in students]
-        return students
+            funFacts = session.query(FunFact).filter(FunFact.netid == netid).all()
 
-def hash_password(password):
-    salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
-    pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), salt, 100000)
-    pwdhash = binascii.hexlify(pwdhash)
-    return (salt + pwdhash).decode('ascii')
+            funFacts = [{ 'id'      : f.id,
+                          'netid'   : f.netid,
+                          'caption' : f.caption,
+                          'photo'   : f.photo } for f in funFacts]
+        return funFacts

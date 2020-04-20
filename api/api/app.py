@@ -4,6 +4,7 @@ import falcon
 
 from .modules.conversation.resource import ConversationResource
 from .modules.dorm.resource import DormResource
+from .modules.funFact.resource import FunFactResource
 from .modules.major.resource import MajorResource
 from .modules.mass.resource import MassResource
 from .modules.message.resource import MessageResource
@@ -27,6 +28,7 @@ def create_api():
     # Create instance for each resource
     conversation    = ConversationResource(Session)
     dorm            = DormResource(Session)
+    funFact         = FunFactResource(Session)
     major           = MajorResource(Session)
     mass            = MassResource(Session)
     message         = MessageResource(Session)
@@ -37,6 +39,7 @@ def create_api():
     # Connect to resources
     api.add_route('/conversations/{netid}', conversation)
     api.add_route('/dorms', dorm)
+    api.add_route('/funfacts/{netid}', funFact)
     api.add_route('/majors', major)
     api.add_route('/masses', mass)
     api.add_route('/messages', message)

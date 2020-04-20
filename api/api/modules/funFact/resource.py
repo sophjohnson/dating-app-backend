@@ -4,18 +4,17 @@ from ...utils import SessionMaker
 from ...models.student import Student
 from .db import db
 
-class StudentResource(object):
+class FunFactResource(object):
 
     def __init__(self, Session):
-        self.Session = Session
-        self.db      = db(Session)
+        self.db = db(Session)
 
-    def on_get(self, req, resp):
-        resp.media = self.db.get_students()
+    def on_get(self, req, resp, netid):
+        resp.media = self.db.get_fun_facts(netid)
         resp.status = HTTP_200
 
-    # Creates student 
-    def on_post(self, req, resp):
+    # Creates fun fact
+    def on_post(self, req, resp, netid):
 
         # Make sure body exists
         try:
@@ -29,26 +28,20 @@ class StudentResource(object):
             msg = "Missing or incorrect parameters."
             raise HTTPBadRequest("Bad Request", msg)
 
-        # Check if student already exists
-        if self.db.student_exists(body['netid']): 
-            msg = "Account with same netid already exists."
-            raise HTTPBadRequest("Bad Request", msg)
-
         # Add student
-        netid = self.db.add_student(body)
-    
+        id = self.db.add_fun_fact(body, netid)
+
         # On success
-        resp.media = {'netid': netid}
+        resp.media = {'funFactID': id}
         resp.status = HTTP_200
 
 # Verify validity of request
 def is_valid(body):
     valid = True
     necessaryParams = {
-        'netid',
-        'password'
+        'caption',
+        'photo'
     }
     passedParams = set(body.keys())
 
-    return necessaryParams.issubset(passedParams)
-
+    return necessaryParams == passedParams
