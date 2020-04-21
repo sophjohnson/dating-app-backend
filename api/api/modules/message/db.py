@@ -1,7 +1,6 @@
 from ...models.message import Message
 from ...utils import SessionMaker, get_curr_time, format_time
 from ..conversation.db import db as conversation_db
-from sqlalchemy import desc
 
 class db:
 
@@ -41,7 +40,7 @@ class db:
             # Get last 20 messages
             messages = session.query(Message)\
                               .filter(Message.conversation == id)\
-                              .order_by(desc(Message.timestamp))\
+                              .order_by(Message.timestamp)\
                               .limit(20)\
                               .all()
 

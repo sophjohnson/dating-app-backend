@@ -1,10 +1,11 @@
 DROP TABLE Request;
 
 CREATE TABLE Request(
-    senderID varchar2(32),
-    receiverID varchar2(32),
+    sender varchar2(32),
+    receiver varchar2(32),
     status varchar2(16),
-    CONSTRAINT pkRequest PRIMARY KEY (senderID, receiverID),
-    CONSTRAINT fkRequestSender FOREIGN KEY (senderID) REFERENCES Student(netid),
-    CONSTRAINT fkRequestReceiver FOREIGN KEY (receiverID) REFERENCES Student(netid)
+    timestamp date,
+    CONSTRAINT pkRequest PRIMARY KEY (sender, receiver),
+    CONSTRAINT fkRequestSender FOREIGN KEY (sender) REFERENCES Student(netid),
+    CONSTRAINT fkRequestReceiver FOREIGN KEY (receiver) REFERENCES Student(netid)
 );
