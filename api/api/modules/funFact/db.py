@@ -1,56 +1,108 @@
-import binascii
-import hashlib
 import os
-import uuid
+from sqlalchemy import and_
+from falcon import HTTPError, HTTPBadRequest
 
-from ...models.student import Student 
+from ..image.resource import ImageHandler
+from ...models.funFact import FunFact
 from ...utils import SessionMaker
-
 
 class db:
 
     def __init__(self, Session):
         self.Session = Session
+        self.ImageHandler = ImageHandler(os.path.dirname(__file__))
 
-    # Check if netid is taken
-    def student_exists(self, id):
+   # Create new fun fact
+    def add_fun_fact(self, req, netid):
+
+        id = None
+
+        # Create fun fact
         sm = SessionMaker(self.Session)
         with sm as session:
-            student = session.query(Student.netid).filter_by(netid=id).scalar()
-         
-        return student is not None
-
-   # Create new account
-    def add_student(self, body):
-
-        # Hash password
-        password = hash_password(body['password'])
-
-        # Create account and profile
-        sm = SessionMaker(self.Session)
-        with sm as session:
-            student = Student(
-                netid=body['netid'],
-                password=password
-
+            funFact = FunFact(
+                netid   = netid,
+                caption = req.params['caption']
             )
-            session.add(student)
+            session.add(funFact)
             session.commit()
 
-            return student.netid
+            id = funFact.id
 
-    # Get students
-    def get_students(self):
+        # Save image
+        imagePath = self.ImageHandler.save_image(req, netid, id)
+
+        # Update fun fact with image path
         sm = SessionMaker(self.Session)
         with sm as session:
-            students = session.query(Student).all()
-            students = [{ 'netid' : s.netid,
-                          'firstName' : s.firstname,
-                          'lastName' : s.lastname } for s in students]
-        return students
+            session.query(FunFact)\
+                   .filter(FunFact.id == id)\
+                   .update({'image': imagePath})
+            session.commit()
 
-def hash_password(password):
-    salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
-    pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), salt, 100000)
-    pwdhash = binascii.hexlify(pwdhash)
-    return (salt + pwdhash).decode('ascii')
+        # Update image path if successful
+        return funFact.id
+
+    # Get fun facts
+    def get_fun_facts(self, netid):
+        sm = SessionMaker(self.Session)
+        with sm as session:
+            funFacts = session.query(FunFact).filter(FunFact.netid == netid).all()
+
+            funFacts = [{ 'id'      : f.id,
+                          'netid'   : f.netid,
+                          'caption' : f.caption,
+                          'image'   : '/images/' + f.image } for f in funFacts]
+        return funFacts
+
+    # Update existing fun fact
+    def update_fun_fact(self, req, netid, id):
+
+        # Get/delete current image
+        sm = SessionMaker(self.Session)
+        with sm as session:
+            image = session.query(FunFact.image).filter(FunFact.id == id).scalar()
+            if image is not None:
+                self.ImageHandler.delete_image(image)
+
+        # Save new image
+        imagePath = self.ImageHandler.save_image(req, netid, id)
+
+        sm = SessionMaker(self.Session)
+        with sm as session:
+
+            # Update fun fact
+            funFact = session.query(FunFact)\
+                             .filter(and_(FunFact.id == id, FunFact.netid == netid))\
+                             .first()
+
+            # If fun fact doesn't exist
+            if funFact is None:
+                msg = "No funFact exists for given id and netid."
+                raise HTTPBadRequest("Bad Request", msg)
+
+            # Handle update caption
+            funFact.caption = req.params['caption']
+            funFact.image   = imagePath
+
+            session.commit()
+
+        return id
+
+    # Delete existing fun fact
+    def delete_fun_fact(self, netid, id):
+        sm = SessionMaker(self.Session)
+        with sm as session:
+
+            image = session.query(FunFact.image).filter(FunFact.id == id).scalar()
+
+            if self.ImageHandler.delete_image(image):
+                funFact = session.query(FunFact)\
+                                 .filter(and_(FunFact.id == id, FunFact.netid == netid))\
+                                 .delete()
+
+                session.commit()
+            else:
+                return False
+
+        return True

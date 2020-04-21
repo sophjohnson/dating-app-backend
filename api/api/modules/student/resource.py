@@ -8,10 +8,6 @@ class StudentResource(object):
         self.Session = Session
         self.db      = db(Session)
 
-    def on_get(self, req, resp):
-        resp.media = self.db.get_students()
-        resp.status = HTTP_200
-
     # Creates student
     def on_post(self, req, resp):
 
@@ -39,8 +35,18 @@ class StudentResource(object):
         resp.media = {'netid': netid}
         resp.status = HTTP_200
 
+class StudentSpecificResource(object):
+
+    def __init__(self, Session):
+        self.Session = Session
+        self.db      = db(Session)
+
+    def on_get(self, req, resp, netid):
+        resp.media = self.db.get_student(netid)
+        resp.status = HTTP_200
+
     # Updates existing student
-    def on_put(self, req, resp):
+    def on_put(self, req, resp, netid):
 
         # Make sure body exists
         try:
@@ -49,13 +55,18 @@ class StudentResource(object):
             msg = "Must send request body."
             raise HTTPBadRequest("Bad Request", msg)
 
-        # Check if student does not exists
-        if not self.db.student_exists(body['netid']):
-            msg = "No student exists for given netid."
-            raise HTTPBadRequest("Bad Request", msg)
-
         # Add student
-        netid = self.db.update_student(body)
+        netid = self.db.update_student(body, netid)
+
+        # On success
+        resp.media = {'netid': netid}
+        resp.status = HTTP_200
+
+    # Add/update profile picture
+    def on_post(self, req, resp, netid):
+
+        # Update student image
+        netid = self.db.update_image(req, netid)
 
         # On success
         resp.media = {'netid': netid}
@@ -69,12 +80,17 @@ def is_valid(body):
         'firstName',
         'lastName',
         'gradYear',
+        'majors',
+        'minors',
         'city',
         'state',
         'dorm',
         'sexualOrientation',
-        'genderIdentity'
+        'genderIdentity',
+        'dh',
+        'fridayNights',
+        'attendsMass'
     }
     passedParams = set(body.keys())
 
-    return necessaryParams.issubset(passedParams)
+    return necessaryParams == passedParams

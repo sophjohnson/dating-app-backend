@@ -1,54 +1,55 @@
 import ujson
-from falcon import HTTPBadRequest, HTTP_200
+from falcon import HTTPBadRequest, HTTPError, HTTP_200
 from ...utils import SessionMaker
 from ...models.student import Student
 from .db import db
 
-class StudentResource(object):
+class FunFactResource(object):
 
     def __init__(self, Session):
-        self.Session = Session
-        self.db      = db(Session)
+        self.db = db(Session)
 
-    def on_get(self, req, resp):
-        resp.media = self.db.get_students()
+    def on_get(self, req, resp, netid):
+        resp.media = self.db.get_fun_facts(netid)
         resp.status = HTTP_200
 
-    # Creates student 
-    def on_post(self, req, resp):
+    # Creates fun fact
+    def on_post(self, req, resp, netid):
 
-        # Make sure body exists
-        try:
-            body = ujson.loads(req.stream.read())
-        except ValueError:
-            msg = "Must send request body."
+        if 'caption' not in req.params:
+            msg = "Must send caption."
             raise HTTPBadRequest("Bad Request", msg)
 
-        # Check request body
-        if not is_valid(body):
-            msg = "Missing or incorrect parameters."
-            raise HTTPBadRequest("Bad Request", msg)
+        # Add fun fact
+        id = self.db.add_fun_fact(req, netid)
 
-        # Check if student already exists
-        if self.db.student_exists(body['netid']): 
-            msg = "Account with same netid already exists."
-            raise HTTPBadRequest("Bad Request", msg)
-
-        # Add student
-        netid = self.db.add_student(body)
-    
         # On success
-        resp.media = {'netid': netid}
+        resp.media = {'funFactID': id}
         resp.status = HTTP_200
 
-# Verify validity of request
-def is_valid(body):
-    valid = True
-    necessaryParams = {
-        'netid',
-        'password'
-    }
-    passedParams = set(body.keys())
+class FunFactSpecificResource(object):
 
-    return necessaryParams.issubset(passedParams)
+    def __init__(self, Session):
+        self.db = db(Session)
 
+    # Updates existing fun fact
+    def on_put(self, req, resp, netid, id):
+
+        if 'caption' not in req.params:
+            msg = "Must send caption."
+            raise HTTPBadRequest("Bad Request", msg)
+
+        # Update fun fact
+        id = self.db.update_fun_fact(req, netid, id)
+
+        resp.media = {'funFactID': id}
+        resp.status = HTTP_200
+
+    # Delete fun fact
+    def on_delete(self, req, resp, netid, id):
+        if not self.db.delete_fun_fact(netid, id):
+            msg = "Failed to delete fun fact."
+            raise HTTPError("Error", msg)
+
+        resp.media = {'deletedFunFact': id}
+        resp.status = HTTP_200

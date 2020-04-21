@@ -5,7 +5,7 @@ CREATE TABLE FunFact(
     id number,
     netid varchar2(32),
     caption varchar2(256),
-    photo varchar2(32),
+    image varchar2(32),
     CONSTRAINT pkFunFact PRIMARY KEY (id),
     CONSTRAINT fkFunFactNetid FOREIGN KEY (netid) REFERENCES Student(netid)
 );

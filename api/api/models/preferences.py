@@ -7,7 +7,7 @@ class Preferences(Base):
     __tablename__ = 'preferences'
 
     # Describe columns
-    netid           = Column(String, primary_key=True, ForeignKey('student.netid'))
+    netid           = Column(String, ForeignKey('student.netid'), primary_key=True)
     mass            = Column(String)
     dh              = Column(String)
-    fridayNights    = Column(String)
+    friday    = Column(String)
