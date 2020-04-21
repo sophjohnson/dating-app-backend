@@ -52,7 +52,7 @@ class db:
             funFacts = [{ 'id'      : f.id,
                           'netid'   : f.netid,
                           'caption' : f.caption,
-                          'image'   : '/images/' + f.image } for f in funFacts]
+                          'image'   : f.image } for f in funFacts]
         return funFacts
 
     # Update existing fun fact
@@ -61,27 +61,22 @@ class db:
         # Get/delete current image
         sm = SessionMaker(self.Session)
         with sm as session:
-            image = session.query(FunFact.image).filter(FunFact.id == id).scalar()
-            if image is not None:
-                self.ImageHandler.delete_image(image)
 
-        # Save new image
-        imagePath = self.ImageHandler.save_image(req, netid, id)
-
-        sm = SessionMaker(self.Session)
-        with sm as session:
-
-            # Update fun fact
-            funFact = session.query(FunFact)\
-                             .filter(and_(FunFact.id == id, FunFact.netid == netid))\
-                             .first()
+            funFact = session.query(FunFact).filter(FunFact.id == id).scalar()
 
             # If fun fact doesn't exist
             if funFact is None:
                 msg = "No funFact exists for given id and netid."
                 raise HTTPBadRequest("Bad Request", msg)
 
-            # Handle update caption
+            # Delete existing image
+            if funFact.image is not None:
+                self.ImageHandler.delete_image(funFact.image)
+
+            # Save new image
+            imagePath = self.ImageHandler.save_image(req, netid, id)
+
+            # Update caption and image path
             funFact.caption = req.params['caption']
             funFact.image   = imagePath
 
@@ -94,15 +89,19 @@ class db:
         sm = SessionMaker(self.Session)
         with sm as session:
 
-            image = session.query(FunFact.image).filter(FunFact.id == id).scalar()
+            funFact = session.query(FunFact).filter(FunFact.id == id).scalar()
 
-            if self.ImageHandler.delete_image(image):
-                funFact = session.query(FunFact)\
-                                 .filter(and_(FunFact.id == id, FunFact.netid == netid))\
-                                 .delete()
+            # If fun fact doesn't exist
+            if funFact is None:
+                msg = "No funFact exists for given id and netid."
+                raise HTTPBadRequest("Bad Request", msg)
 
-                session.commit()
-            else:
-                return False
+            # Delete existing image
+            if funFact.image is not None:
+                if self.ImageHandler.delete_image(funFact.image):
+                    funFact = session.query(FunFact).filter(FunFact.id == id).delete()
+                    session.commit()
+                else:
+                    return False
 
         return True

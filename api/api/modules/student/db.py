@@ -98,18 +98,26 @@ class db:
 
     def update_image(self, req, netid):
 
-        # Save image
-        imagePath = self.ImageHandler.save_image(req, netid, 0)
-
         # Update image path if successful
         sm = SessionMaker(self.Session)
         with sm as session:
-            session.query(Student)\
-                   .filter(Student.netid == netid)\
-                   .update({'image': imagePath})
+            student = session.query(Student).filter(Student.netid == netid).scalar()
+
+            # If student doesn't exist
+            if student is None:
+                msg = "No student exists for given netid."
+                raise HTTPBadRequest("Bad Request", msg)
+
+            # Delete current profile picture
+            if student.image is not None:
+                self.ImageHandler.delete_image(student.image)
+
+            # Save image and record path
+            student.image = self.ImageHandler.save_image(req, netid, 0)
+
             session.commit()
 
-        return netid
+            return student.netid
 
     # Get all information about student
     def get_student(self, netid):
@@ -139,7 +147,7 @@ class db:
                         'sexualOrientation' : student.orientation,
                         'genderIdentity'    : student.identity,
                         'funFacts'          : [ self.format_fun_fact(f) for f in student.funfacts ],
-                        'image'             : '/images/' + student.image,
+                        'image'             : student.image,
                         'dh'                : pref.dh,
                         'fridayNights'      : pref.friday,
                         'attendsMass'       : pref.mass }

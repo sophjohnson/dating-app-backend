@@ -25,7 +25,7 @@ class StudentResource(object):
 
         # Check if student already exists
         if self.db.student_exists(body['netid']):
-            msg = "Account with same netid already exists."
+            msg = "Student with same netid already exists."
             raise HTTPBadRequest("Bad Request", msg)
 
         # Add student

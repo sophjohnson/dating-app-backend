@@ -6,6 +6,7 @@ from .modules.conversation.resource import ConversationResource
 from .modules.dorm.resource import DormResource
 from .modules.funFact.resource import FunFactResource, FunFactSpecificResource
 from .modules.image.resource import ImageResource
+from .modules.login.resource import LoginResource
 from .modules.major.resource import MajorResource
 from .modules.mass.resource import MassResource
 from .modules.message.resource import MessageResource
@@ -33,6 +34,7 @@ def create_api():
     funFact         = FunFactResource(Session)
     funFactSpecific = FunFactSpecificResource(Session)
     image           = ImageResource()
+    login           = LoginResource(Session)
     major           = MajorResource(Session)
     mass            = MassResource(Session)
     message         = MessageResource(Session)
@@ -47,6 +49,7 @@ def create_api():
     api.add_route('/funfacts/{netid}', funFact)
     api.add_route('/funfacts/{netid}/{id}', funFactSpecific)
     api.add_route('/images/{name}', image)
+    api.add_route('/login', login)
     api.add_route('/majors', major)
     api.add_route('/masses', mass)
     api.add_route('/messages', message)
