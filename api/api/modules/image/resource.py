@@ -46,7 +46,7 @@ class ImageHandler(object):
 
                 imageFile.write(chunk)
 
-        return '/images/' + name
+        return name
 
     # Delete image from deleted fun fact
     def delete_image(self, name):

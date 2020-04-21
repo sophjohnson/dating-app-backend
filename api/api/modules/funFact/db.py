@@ -1,5 +1,6 @@
 import os
 from sqlalchemy import and_
+from falcon import HTTPError, HTTPBadRequest
 
 from ..image.resource import ImageHandler
 from ...models.funFact import FunFact
@@ -51,16 +52,24 @@ class db:
             funFacts = [{ 'id'      : f.id,
                           'netid'   : f.netid,
                           'caption' : f.caption,
-                          'image'   : f.image } for f in funFacts]
+                          'image'   : '/images/' + f.image } for f in funFacts]
         return funFacts
 
     # Update existing fun fact
     def update_fun_fact(self, req, netid, id):
+
+        # Get/delete current image
         sm = SessionMaker(self.Session)
         with sm as session:
+            image = session.query(FunFact.image).filter(FunFact.id == id).scalar()
+            if image is not None:
+                self.ImageHandler.delete_image(image)
 
-            # Save image
-            imagePath = self.ImageHandler.save_image(req, netid, id)
+        # Save new image
+        imagePath = self.ImageHandler.save_image(req, netid, id)
+
+        sm = SessionMaker(self.Session)
+        with sm as session:
 
             # Update fun fact
             funFact = session.query(FunFact)\

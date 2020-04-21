@@ -11,6 +11,7 @@ CREATE TABLE Student(
     dorm varchar2(32),
     orientation varchar2(32),
     identity varchar2(32),
+    image varchar2(32),
     CONSTRAINT pkStudent PRIMARY KEY (netid),
     CONSTRAINT fkStudentState FOREIGN KEY (state) REFERENCES State(code),
     CONSTRAINT fkStudentDorm FOREIGN KEY (dorm) REFERENCES Dorm(dorm)

@@ -10,12 +10,14 @@ from ...models.preferences import Preferences
 from ...models.major import Major
 from ...models.minor import Minor
 from ...utils import SessionMaker
+from ..image.resource import ImageHandler
 
 
 class db:
 
     def __init__(self, Session):
         self.Session = Session
+        self.ImageHandler = ImageHandler(os.path.dirname(__file__))
 
     # Check if netid is taken
     def student_exists(self, id):
@@ -92,9 +94,22 @@ class db:
 
             session.commit()
 
-
-
             return student.netid
+
+    def update_image(self, req, netid):
+
+        # Save image
+        imagePath = self.ImageHandler.save_image(req, netid, 0)
+
+        # Update image path if successful
+        sm = SessionMaker(self.Session)
+        with sm as session:
+            session.query(Student)\
+                   .filter(Student.netid == netid)\
+                   .update({'image': imagePath})
+            session.commit()
+
+        return netid
 
     # Get all information about student
     def get_student(self, netid):
@@ -124,6 +139,7 @@ class db:
                         'sexualOrientation' : student.orientation,
                         'genderIdentity'    : student.identity,
                         'funFacts'          : [ self.format_fun_fact(f) for f in student.funfacts ],
+                        'image'             : '/images/' + student.image,
                         'dh'                : pref.dh,
                         'fridayNights'      : pref.friday,
                         'attendsMass'       : pref.mass }

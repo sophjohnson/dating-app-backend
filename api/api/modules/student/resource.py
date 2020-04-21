@@ -62,6 +62,16 @@ class StudentSpecificResource(object):
         resp.media = {'netid': netid}
         resp.status = HTTP_200
 
+    # Add/update profile picture
+    def on_post(self, req, resp, netid):
+
+        # Update student image
+        netid = self.db.update_image(req, netid)
+
+        # On success
+        resp.media = {'netid': netid}
+        resp.status = HTTP_200
+
 # Verify validity of request
 def is_valid(body):
     necessaryParams = {
