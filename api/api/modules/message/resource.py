@@ -23,7 +23,7 @@ class MessageResource(object):
             raise HTTPBadRequest("Bad Request", msg)
 
         # Add message
-        id = self.db.create_message(body)
+        id = self.db.create_message(body['sender'], body['receiver'], body['content'])
 
         # On success
         resp.media = {'id': id}
@@ -31,7 +31,11 @@ class MessageResource(object):
 
     # Get all messages in a conversation
     def on_get(self, req, resp):
-        resp.media = self.db.get_messages(req.params)
+        if 'id' not in req.params:
+            msg = "Missing or incorrect parameters."
+            raise HTTPBadRequest("Bad Request", msg)
+
+        resp.media = self.db.get_messages(req.params['id'])
         resp.status = HTTP_200
 
 

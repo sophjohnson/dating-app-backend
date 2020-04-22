@@ -78,13 +78,12 @@ class db:
 
             details = {
                 'id'        : c.id,
+                'netid'     : c.netid,
                 'firstName' : c.first,
                 'lastName'  : c.last,
                 'sender'    : lastMessage.sender,
                 'receiver'  : lastMessage.receiver,
                 'content'   : lastMessage.content,
                 'timestamp' : format_time(lastMessage.timestamp) }
-
-        #details['name'] = self.sdb.get_student(c.netid)
 
         return details

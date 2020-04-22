@@ -1,15 +1,17 @@
 import ujson
 from falcon import HTTPBadRequest, HTTP_200
 from .db import db
+from ..student.db import db as sdb
 from ..recommender.db import db as rdb
 
-class RequestResource(object):
+class RecommendationResource(object):
 
     def __init__(self, Session):
         self.db = db(Session)
+        self.sdb = sdb(Session)
         self.rdb = rdb(Session)
 
-    # Creates request
+    # Creates recommendation
     def on_post(self, req, resp):
 
         # Make sure body exists
@@ -20,22 +22,27 @@ class RequestResource(object):
             raise HTTPBadRequest("Bad Request", msg)
 
         # Check request body
-        sender      = body.get('sender')
-        receiver    = body.get('receiver')
+        viewer  = body.get('viewer')
+        viewee  = body.get('viewee')
+        netid   = body.get('recommendedBy')
 
         # Check request body
-        if sender is None or receiver is None:
+        if viewer is None or viewee is None or netid is None:
             msg = "Missing or incorrect parameters."
             raise HTTPBadRequest("Bad Request", msg)
 
-        # If not already recommender, send request
-        if not self.rdb.recommender_exists(receiver, sender):
-            self.db.create_request(sender, receiver)
+        # Verify valid recommender
+        if not self.rdb.recommender_exists(netid, viewer):
+            msg = "Unapproved recommender."
+            raise HTTPBadRequest("Bad Request", msg)
+
+        # Add request
+        self.db.create_recommendation(viewer, viewee, netid)
 
         # On success
         resp.status = HTTP_200
 
-    # Updates request
+    # Updates status recommendation
     def on_put(self, req, resp):
 
         # Make sure body exists
@@ -46,26 +53,36 @@ class RequestResource(object):
             raise HTTPBadRequest("Bad Request", msg)
 
         # Check request body
-        sender      = body.get('sender')
-        receiver    = body.get('receiver')
-        status      = body.get('status')
+        viewer  = body.get('viewer')
+        viewee  = body.get('viewee')
+        status  = body.get('status')
+        message = body.get('message')
 
-        if sender is None or receiver is None or status is None:
+        # Check request body
+        if viewer is None or viewee is None or status is None:
             msg = "Missing or incorrect parameters."
             raise HTTPBadRequest("Bad Request", msg)
 
-        # Add message
-        self.db.update_request(sender, receiver, status)
+        # Update request
+        self.db.update_recommendation(viewer, viewee, status, message)
 
         # On success
         resp.status = HTTP_200
 
-    # Get all requests for a student
+    # Get next recommendation
     def on_get(self, req, resp):
 
+        # Check parameters
         if 'netid' not in req.params:
             msg = "Missing or incorrect parameters."
             raise HTTPBadRequest("Bad Request", msg)
 
-        resp.media = self.db.get_requests(req.params['netid'])
+        # Get recommendation
+        netid = self.db.get_recommendation(req.params['netid'])
+
+        if netid is not None:
+            resp.media = self.sdb.get_profile(netid)
+        else:
+            resp.media = {}
+
         resp.status = HTTP_200
