@@ -45,7 +45,7 @@ class db:
             raise HTTPBadRequest("Bad Request", msg)
 
         if status == 'accept':
-            self.rdb.create_recommender(sender, receiver)
+            self.rdb.create_recommender(receiver, sender)
         elif status != 'reject':
             msg = "Updated status must be accept or reject."
             raise HTTPBadRequest("Bad Request", msg)

@@ -11,6 +11,7 @@ from .modules.major.resource import MajorResource
 from .modules.mass.resource import MassResource
 from .modules.message.resource import MessageResource
 from .modules.minor.resource import MinorResource
+from .modules.recommendation.resource import RecommendationResource
 from .modules.recommender.resource import RecommenderResource
 from .modules.request.resource import RequestResource
 from .modules.state.resource import StateResource
@@ -42,6 +43,7 @@ def create_api():
     message         = MessageResource(Session)
     minor           = MinorResource(Session)
     request         = RequestResource(Session)
+    recommendation  = RecommendationResource(Session)
     recommender     = RecommenderResource(Session)
     state           = StateResource(Session)
     student         = StudentResource(Session)
@@ -59,6 +61,7 @@ def create_api():
     api.add_route('/messages', message)
     api.add_route('/minors', minor)
     api.add_route('/requests', request)
+    api.add_route('/recommendation', recommendation)
     api.add_route('/recommenders', recommender)
     api.add_route('/states', state)
     api.add_route('/students', student)

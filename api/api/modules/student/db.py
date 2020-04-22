@@ -7,6 +7,7 @@ from falcon import HTTPBadRequest
 
 from ...models.student import Student
 from ...models.preferences import Preferences
+from ...models.dorm import Dorm
 from ...models.major import Major
 from ...models.minor import Minor
 from ...utils import SessionMaker
@@ -41,7 +42,7 @@ class db:
                 gradyear        = body['gradYear'],
                 city            = body['city'],
                 state           = body['state'],
-                dorm            = body['dorm'],
+                dorm            = self.unpack_dorm(body['dorm']),
                 majors          = self.unpack_majors(body['majors']),
                 minors          = self.unpack_minors(body['minors']),
                 orientation     = body['sexualOrientation'],
@@ -170,6 +171,7 @@ class db:
                         'city'              : student.city,
                         'state'             : student.state,
                         'dorm'              : student.dorm,
+                        'image'             : student.image,
                         'funFacts'          : [ self.format_fun_fact(f) for f in student.funfacts ] }
 
         return student
@@ -181,6 +183,13 @@ class db:
                     'image'   : funFact.image }
 
         return funFact
+
+    # Get dorm object
+    def unpack_dorm(self, dorm):
+        sm = SessionMaker(self.Session)
+        with sm as session:
+            dorm = session.query(Dorm.dorm).filter(Dorm.dorm == dorm).scalar()
+            return dorm
 
     # Get major objects
     def unpack_majors(self, majors):

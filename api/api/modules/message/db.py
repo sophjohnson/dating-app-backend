@@ -9,19 +9,19 @@ class db:
         self.cdb = conversation_db(Session)
 
     # Create message
-    def create_message(self, body):
+    def create_message(self, sender, receiver, content):
 
         # Create or get conversation id
-        id = self.cdb.get_conversation_id(body['sender'], body['receiver'])
+        id = self.cdb.get_conversation_id(sender, receiver)
 
         # Create account and profile
         sm = SessionMaker(self.Session)
         with sm as session:
             message = Message(
                 conversation    = id,
-                sender          = body['sender'],
-                receiver        = body['receiver'],
-                content         = body['content'],
+                sender          = sender,
+                receiver        = receiver,
+                content         = content,
                 timestamp       = get_curr_time()
             )
             session.add(message)
@@ -30,12 +30,9 @@ class db:
             return message.id
 
     # Get messages from conversation
-    def get_messages(self, params):
+    def get_messages(self, id):
         sm = SessionMaker(self.Session)
         with sm as session:
-
-            # Get conversation id
-            id = self.cdb.get_conversation_id(params['sender'], params['receiver'])
 
             # Get last 20 messages
             messages = session.query(Message)\
