@@ -2,12 +2,14 @@ import ujson
 from falcon import HTTPBadRequest, HTTP_200
 from .db import db
 from ..recommender.db import db as rdb
+from ..student.db import db as sdb
 
 class RequestResource(object):
 
     def __init__(self, Session):
         self.db = db(Session)
         self.rdb = rdb(Session)
+        self.sdb = sdb(Session)
 
     # Creates request
     def on_post(self, req, resp):
@@ -26,6 +28,11 @@ class RequestResource(object):
         # Check request body
         if sender is None or receiver is None:
             msg = "Missing or incorrect parameters."
+            raise HTTPBadRequest("Bad Request", msg)
+
+        # Make sure student exists
+        if not self.sdb.student_exists(receiver):
+            msg = "Requested recommender does not exist."
             raise HTTPBadRequest("Bad Request", msg)
 
         # If not already recommender, send request

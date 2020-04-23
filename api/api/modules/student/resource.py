@@ -87,6 +87,7 @@ def is_valid(body):
         'dorm',
         'sexualOrientation',
         'genderIdentity',
+        'question',
         'dh',
         'fridayNights',
         'attendsMass'

@@ -46,7 +46,8 @@ class db:
                 majors          = self.unpack_majors(body['majors']),
                 minors          = self.unpack_minors(body['minors']),
                 orientation     = body['sexualOrientation'],
-                identity        = body['genderIdentity']
+                identity        = body['genderIdentity'],
+                question        = body['question']
             )
             session.add(student)
             session.commit()
@@ -78,6 +79,8 @@ class db:
                 raise HTTPBadRequest("Bad Request", msg)
 
             if 'majors' in body:
+                student.majors.clear()
+                session.commit()
                 student.majors = self.unpack_majors(body['majors'])
 
             if 'minors' in body:
@@ -92,6 +95,7 @@ class db:
             student.dorm            = body.get('dorm', student.dorm)
             student.orientation     = body.get('sexualOrientation', student.orientation)
             student.identity        = body.get('genderIdentity', student.identity)
+            student.question        = body.get('question', student.question)
 
             session.commit()
 
@@ -148,6 +152,7 @@ class db:
                         'sexualOrientation' : student.orientation,
                         'genderIdentity'    : student.identity,
                         'funFacts'          : [ self.format_fun_fact(f) for f in student.funfacts ],
+                        'question'          : student.question,
                         'image'             : student.image,
                         'dh'                : pref.dh,
                         'fridayNights'      : pref.friday,
@@ -171,6 +176,7 @@ class db:
                         'city'              : student.city,
                         'state'             : student.state,
                         'dorm'              : student.dorm,
+                        'question'          : student.question,
                         'image'             : student.image,
                         'funFacts'          : [ self.format_fun_fact(f) for f in student.funfacts ] }
 

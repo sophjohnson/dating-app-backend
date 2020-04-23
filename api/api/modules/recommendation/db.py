@@ -71,7 +71,7 @@ class db:
         sm = SessionMaker(self.Session)
         with sm as session:
             # Get all conversations
-            recommendation = session.query(Recommendation.viewee)\
+            recommendation = session.query(Recommendation.viewee, Recommendation.recommendedby)\
                            .filter(and_(Recommendation.viewer == netid, Recommendation.status == 'pending'))\
                            .order_by(Recommendation.timestamp)\
                            .first()
@@ -79,4 +79,4 @@ class db:
             if recommendation is None:
                 return None
 
-        return recommendation.viewee
+            return recommendation.viewee, recommendation.recommendedby

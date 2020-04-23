@@ -1,0 +1,72 @@
+from ...models.browse import Browse
+from ...models.student import Student
+from ...models.preferences import Preferences
+from ...models.recommendation import Recommendation
+from ...models.major import Major
+from ...models.minor import Minor
+from ...utils import SessionMaker
+from ..recommendation.db import db as rdb
+from ..student.db import db as sdb
+from sqlalchemy import and_, or_
+
+class db:
+
+    def __init__(self, Session):
+        self.Session = Session
+        self.rdb = rdb(Session)
+        self.sdb = sdb(Session)
+
+    # Get next profile to browse for given netid, by given netid
+    def get_browse(self, params, viewFor, viewBy):
+
+        # Get students based on
+        students = self.filter_preferences(params, viewFor, viewBy)
+
+        students = [{ 'netid' : s.netid } for s in students ]
+
+        #students = [s for s in students if not self.browse_exists(viewFor, netid, viewBy)]
+
+        return students
+
+    # Filter nonnegotiable preferences and given filters
+    def filter_preferences(self, params, viewFor, viewBy):
+
+        sm = SessionMaker(self.Session)
+        with sm as session:
+
+            # Get student's current preferences
+            student = self.sdb.get_student(viewFor)
+            identity = student['genderIdentity']
+            orientation = student['sexualOrientation']
+
+            # Start building query
+            query = session.query(Student).select_from(Student)
+
+            # Gender identity/sexual orientation
+            if identity == 'female' and orientation == 'heterosexual':
+                query = query.filter(and_(Student.identity == 'male', or_(Student.orientation == 'heterosexual', Student.orientation == 'bisexual')))
+            elif identity == 'female' and orientation == 'homosexual':
+                query = query.filter(and_(Student.identity == 'female', or_(Student.orientation == 'homosexual', Student.orientation == 'bisexual')))
+            elif identity == 'male' and orientation == 'heterosexual':
+                query = query.filter(and_(Student.identity == 'female', or_(Student.orientation == 'heterosexual', Student.orientation == 'bisexual')))
+            elif identity == 'male' and orientation == 'homosexual':
+                query = query.filter(and_(Student.identity == 'male', or_(Student.orientation == 'homosexual', Student.orientation == 'bisexual')))
+
+            # Filter by major
+            major = params.pop('major', None)
+            if major is not None:
+                query = query.join(Student.majors)
+                query = query.filter(Major.major == major)
+
+            # Filter by minor
+            minor = params.pop('minor', None)
+            if minor is not None:
+                query = query.join(Student.minors)
+                query = query.filter(Minor.minor == minor)
+
+            # Filter request parameters
+            for attr, pref in params.items():
+                actual = getattr(Student, attr)
+                query = query.filter(pref == actual)
+
+            return query.all()

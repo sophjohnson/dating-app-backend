@@ -2,6 +2,7 @@
 
 import falcon
 
+from .modules.browse.resource import BrowseResource
 from .modules.conversation.resource import ConversationResource
 from .modules.dorm.resource import DormResource
 from .modules.funFact.resource import FunFactResource, FunFactSpecificResource
@@ -32,6 +33,7 @@ def create_api():
     api = application = falcon.API()
 
     # Create instance for each resource
+    browse          = BrowseResource(Session)
     conversation    = ConversationResource(Session)
     dorm            = DormResource(Session)
     funFact         = FunFactResource(Session)
@@ -50,6 +52,7 @@ def create_api():
     studentSpecific = StudentSpecificResource(Session)
 
     # Connect to resources
+    api.add_route('/browse', browse)
     api.add_route('/conversations/{netid}', conversation)
     api.add_route('/dorms', dorm)
     api.add_route('/funfacts/{netid}', funFact)

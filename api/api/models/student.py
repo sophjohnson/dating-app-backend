@@ -32,5 +32,6 @@ class Student(Base):
     minors          = relationship("Minor", secondary=studentMinor)
     orientation     = Column(String)
     identity        = Column(String)
+    question        = Column(String)
     image           = Column(String)
     funfacts        = relationship("FunFact", backref="student")

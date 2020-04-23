@@ -1,12 +1,12 @@
 from ...models.message import Message
 from ...utils import SessionMaker, get_curr_time, format_time
-from ..conversation.db import db as conversation_db
+from ..conversation.db import db as cdb
 
 class db:
 
     def __init__(self, Session):
         self.Session = Session
-        self.cdb = conversation_db(Session)
+        self.cdb = cdb(Session)
 
     # Create message
     def create_message(self, sender, receiver, content):

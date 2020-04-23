@@ -78,10 +78,13 @@ class RecommendationResource(object):
             raise HTTPBadRequest("Bad Request", msg)
 
         # Get recommendation
-        netid = self.db.get_recommendation(req.params['netid'])
+        recommendation = self.db.get_recommendation(req.params['netid'])
 
-        if netid is not None:
-            resp.media = self.sdb.get_profile(netid)
+        # Find profile information
+        if recommendation is not None:
+             result = self.sdb.get_profile(recommendation[0])
+             result['recommendedBy'] = recommendation[1]
+             resp.media = result
         else:
             resp.media = {}
 
