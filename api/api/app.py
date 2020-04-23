@@ -18,6 +18,7 @@ from .modules.request.resource import RequestResource
 from .modules.state.resource import StateResource
 from .modules.student.resource import StudentResource, StudentSpecificResource
 
+from.utils import CORSComponent
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -30,7 +31,7 @@ def create_api():
     Session = sessionmaker(bind=engine)
 
     # Create application
-    api = application = falcon.API()
+    api = application = falcon.API(middleware=[CORSComponent()])
 
     # Create instance for each resource
     browse          = BrowseResource(Session)
