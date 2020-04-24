@@ -5,7 +5,6 @@ from ...models.recommendation import Recommendation
 from ...models.major import Major
 from ...models.minor import Minor
 from ...utils import SessionMaker
-from ..recommendation.db import db as rdb
 from ..student.db import db as sdb
 from sqlalchemy import and_, or_
 
@@ -13,8 +12,21 @@ class db:
 
     def __init__(self, Session):
         self.Session = Session
-        self.rdb = rdb(Session)
         self.sdb = sdb(Session)
+
+    # Create new browse record when viewer has made a decision
+    def create_browse(self, viewedFor, netid, viewedBy):
+
+        # Create browse
+        sm = SessionMaker(self.Session)
+        with sm as session:
+            browse = Browse(
+                viewedfor   = viewedFor,
+                netid       = netid,
+                viewedby    = viewedBy
+            )
+            session.add(browse)
+            session.commit()
 
     # Get next profile to browse for given netid, by given netid
     def get_browse(self, params, viewFor, viewBy):
@@ -24,23 +36,30 @@ class db:
 
         students = [{ 'netid' : s.netid } for s in students ]
 
-        #students = [s for s in students if not self.browse_exists(viewFor, netid, viewBy)]
-
         return students
 
-    # Filter nonnegotiable preferences and given filters
+    # Query to filter nonnegotiable preferences and given parameters
     def filter_preferences(self, params, viewFor, viewBy):
 
         sm = SessionMaker(self.Session)
         with sm as session:
 
-            # Get student's current preferences
+            # Start building query
+            query = session.query(Student)
+
+            # Filter out existing recommendations and students who have been viewed before
+            subquery = (session.query(Recommendation.viewee.label('netid'))\
+                               .filter(Recommendation.viewer == viewFor))\
+                               .union\
+                       (session.query(Browse.netid.label('netid'))\
+                               .filter(and_(Browse.viewedfor == viewFor, Browse.viewedby == viewBy)))
+
+            query = query.filter(Student.netid.notin_(subquery))
+
+            # Get target student's current preferences
             student = self.sdb.get_student(viewFor)
             identity = student['genderIdentity']
             orientation = student['sexualOrientation']
-
-            # Start building query
-            query = session.query(Student).select_from(Student)
 
             # Gender identity/sexual orientation
             if identity == 'female' and orientation == 'heterosexual':

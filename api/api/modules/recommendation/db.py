@@ -36,8 +36,6 @@ class db:
                 session.add(recommendation)
                 session.commit()
 
-                return recommendation.status
-
    # Update existing recommendation
     def update_recommendation(self, viewer, viewee, status, message):
 

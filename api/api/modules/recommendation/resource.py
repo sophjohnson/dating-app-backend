@@ -11,38 +11,7 @@ class RecommendationResource(object):
         self.sdb = sdb(Session)
         self.rdb = rdb(Session)
 
-    # Creates recommendation
-    def on_post(self, req, resp):
-
-        # Make sure body exists
-        try:
-            body = ujson.loads(req.stream.read())
-        except ValueError:
-            msg = "Error loading request body."
-            raise HTTPBadRequest("Bad Request", msg)
-
-        # Check request body
-        viewer  = body.get('viewer')
-        viewee  = body.get('viewee')
-        netid   = body.get('recommendedBy')
-
-        # Check request body
-        if viewer is None or viewee is None or netid is None:
-            msg = "Missing or incorrect parameters."
-            raise HTTPBadRequest("Bad Request", msg)
-
-        # Verify valid recommender
-        if not self.rdb.recommender_exists(netid, viewer):
-            msg = "Unapproved recommender."
-            raise HTTPBadRequest("Bad Request", msg)
-
-        # Add request
-        self.db.create_recommendation(viewer, viewee, netid)
-
-        # On success
-        resp.status = HTTP_200
-
-    # Updates status recommendation
+    # Updates status of recommendation
     def on_put(self, req, resp):
 
         # Make sure body exists
