@@ -42,3 +42,6 @@ def format_time(ts):
 
 def get_curr_time():
     return datetime.now().astimezone(timezone('US/Eastern'))
+
+def get_earliest_time():
+    return datetime.min

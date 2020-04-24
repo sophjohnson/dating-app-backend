@@ -12,6 +12,9 @@ class db:
     # Get id if conversation exists
     def conversation_exists(self, s1, s2):
 
+        # Alphabetical order
+        (s1, s2) = sorted([s1, s2])
+
         sm = SessionMaker(self.Session)
         with sm as session:
             id = session.query(Conversation.id)\
@@ -21,6 +24,9 @@ class db:
 
     # Create conversation
     def create_conversation(self, s1, s2):
+
+        # Alphabetical order
+        (s1, s2) = sorted([s1, s2])
 
         # Create conversation
         sm = SessionMaker(self.Session)
@@ -33,19 +39,6 @@ class db:
             session.commit()
 
             return conversation.id
-
-    # Get conversation id
-    def get_conversation_id(self, s1, s2):
-
-        # Alphabetical order
-        (s1, s2) = sorted([s1, s2])
-
-        # Get if exists, otherwise add
-        id = self.conversation_exists(s1, s2)
-        if id is None:
-            id = self.create_conversation(s1, s2)
-
-        return id
 
     # Get all conversations for given netid
     def get_conversations(self, netid):

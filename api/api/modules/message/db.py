@@ -1,5 +1,6 @@
 from ...models.message import Message
-from ...utils import SessionMaker, get_curr_time, format_time
+from ...models.student import Student
+from ...utils import SessionMaker, get_curr_time, get_earliest_time, format_time
 from ..conversation.db import db as cdb
 
 class db:
@@ -11,12 +12,35 @@ class db:
     # Create message
     def create_message(self, sender, receiver, content):
 
-        # Create or get conversation id
-        id = self.cdb.get_conversation_id(sender, receiver)
 
-        # Create account and profile
+        # Get conversaion id (if exists)
+        id = self.cdb.conversation_exists(sender, receiver)
+
+        # Get id if new conversation, record if first message
+        firstMessage = False
+        if id is None:
+            firstMessage = True
+            id = self.cdb.create_conversation(sender, receiver)
+
         sm = SessionMaker(self.Session)
         with sm as session:
+
+            # Add prompt question if first message in conversation
+            if firstMessage:
+
+                question = session.query(Student.question).filter(Student.netid == receiver).scalar()
+                print(question)
+                message = Message(
+                    conversation    = id,
+                    sender          = receiver,
+                    receiver        = sender,
+                    content         = question,
+                    timestamp       = get_earliest_time()
+                )
+                session.add(message)
+                session.commit()
+
+            # Add actual message
             message = Message(
                 conversation    = id,
                 sender          = sender,
