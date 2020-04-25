@@ -5,7 +5,7 @@ from ...utils import format_time
 from ...models.student import Student
 from ...models.course import Course
 from ...models.lunch import Lunch
-from ...utils import SessionMaker, TimeWindow, get_time_difference
+from ...utils import SessionMaker, TimeWindow, get_time_difference, to_datetime
 
 class db:
 
@@ -29,7 +29,7 @@ class db:
 
         # Parse lunches
         lunches = self.parse_all_lunches(cal)
-        #self.create_lunches(netid, lunches)
+        self.create_lunches(netid, lunches)
         result['lunches'] = self.format_lunches(lunches)
 
         return result
@@ -144,24 +144,18 @@ class db:
         sm = SessionMaker(self.Session)
         with sm as session:
 
-            # Get student
-            student = session.query(Student).filter(Student.netid == netid).scalar()
-
-            # If student doesn't exist
-            if student is None:
-                msg = "No student exists for given netid."
-                raise HTTPBadRequest("Bad Request", msg)
-
-            # Remove existing courses
-            student.lunches.clear()
+            # Delete current lunches
+            student = session.query(Lunch).filter(Lunch.netid == netid).delete()
             session.commit()
 
-            # Record new course
-            studentLunches = []
-            for day, breaks in lunchBreaks:
-                lunch = Lunch(
-                    netid   = netid,
-                    day     = day
-                )
+            # Record new lunches
+            for day, breaks in lunchBreaks.items():
+                for b in breaks:
+                    lunch = Lunch(
+                        netid       = netid,
+                        day         = day,
+                        starttime   = to_datetime(b.start),
+                        endtime     = to_datetime(b.end)
+                    )
                 session.add(lunch)
                 session.commit()

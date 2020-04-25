@@ -7,7 +7,7 @@ CREATE TABLE Lunch(
     day varchar2(2),
     startTime date,
     endTime date,
-    CONSTRAINT pkLunch PRIMARY KEY (netid, day, startTime),
+    CONSTRAINT pkLunch PRIMARY KEY (id),
     CONSTRAINT fkLunchNetid FOREIGN KEY (netid) REFERENCES Student(netid)
 );
 
