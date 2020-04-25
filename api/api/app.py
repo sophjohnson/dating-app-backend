@@ -3,6 +3,7 @@
 import falcon
 
 from .modules.browse.resource import BrowseResource
+from .modules.compatibility.resource import CompatibilityResource
 from .modules.conversation.resource import ConversationResource
 from .modules.dorm.resource import DormResource
 from .modules.funFact.resource import FunFactResource, FunFactSpecificResource
@@ -36,6 +37,7 @@ def create_api():
 
     # Create instance for each resource
     browse          = BrowseResource(Session)
+    compatibility   = CompatibilityResource(Session)
     conversation    = ConversationResource(Session)
     dorm            = DormResource(Session)
     funFact         = FunFactResource(Session)
@@ -56,6 +58,7 @@ def create_api():
 
     # Connect to resources
     api.add_route('/browse', browse)
+    api.add_route('/compatibility', compatibility)
     api.add_route('/conversations/{netid}', conversation)
     api.add_route('/dorms', dorm)
     api.add_route('/funfacts/{netid}', funFact)

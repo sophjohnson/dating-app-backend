@@ -1,11 +1,10 @@
 from icalendar import Calendar
 from datetime import datetime, date, time
-from ...utils import format_time
 
 from ...models.student import Student
 from ...models.course import Course
 from ...models.lunch import Lunch
-from ...utils import SessionMaker, TimeWindow, get_time_difference, to_datetime
+from ...utils import SessionMaker, TimeWindow, get_time_difference, to_datetime, format_time
 
 class db:
 
@@ -101,7 +100,7 @@ class db:
                 for day in days:
                     busy[day].append(TimeWindow(start, end))
 
-        lunchBreaks = { day: (self.parse_lunches(times)) for day, times in busy.items() }
+        lunchBreaks = { day: self.parse_lunches(times) for day, times in busy.items() }
 
         return lunchBreaks
 
@@ -151,11 +150,12 @@ class db:
             # Record new lunches
             for day, breaks in lunchBreaks.items():
                 for b in breaks:
+
                     lunch = Lunch(
                         netid       = netid,
                         day         = day,
                         starttime   = to_datetime(b.start),
                         endtime     = to_datetime(b.end)
                     )
-                session.add(lunch)
-                session.commit()
+                    session.add(lunch)
+                    session.commit()

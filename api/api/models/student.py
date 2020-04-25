@@ -41,5 +41,7 @@ class Student(Base):
     identity        = Column(String)
     question        = Column(String)
     image           = Column(String)
+    studentdorm     = relationship("Dorm", back_populates="students")
     funfacts        = relationship("FunFact", backref="student")
+    preferences     = relationship("Preferences", backref="student")
     lunches         = relationship("Lunch", back_populates="student")

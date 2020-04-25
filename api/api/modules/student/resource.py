@@ -15,7 +15,7 @@ class StudentResource(object):
         try:
             body = ujson.loads(req.stream.read())
         except ValueError:
-            msg = "Must send request body."
+            msg = "Error loading request body."
             raise HTTPBadRequest("Bad Request", msg)
 
         # Check request body
@@ -88,9 +88,20 @@ def is_valid(body):
         'sexualOrientation',
         'genderIdentity',
         'question',
-        'dh',
-        'fridayNights',
-        'attendsMass'
+        'temperament',
+        'giveAffection',
+        'trait',
+        'idealDate',
+        'fridayNight',
+        'diningHall',
+        'studySpot',
+        'mass',
+        'club',
+        'gameDay',
+        'hour',
+        'idealTemperament',
+        'receiveAffection',
+        'idealTrait'
     }
     passedParams = set(body.keys())
 
