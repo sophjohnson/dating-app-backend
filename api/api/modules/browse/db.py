@@ -36,7 +36,7 @@ class db:
 
         students = [{ 'netid' : s.netid } for s in students ]
 
-        return students
+        return students[0]['netid']
 
     # Query to filter nonnegotiable preferences and given parameters
     def filter_preferences(self, params, viewFor, viewBy):
