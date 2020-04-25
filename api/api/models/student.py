@@ -14,6 +14,11 @@ studentMinor = Table('studentminor', Base.metadata,
     Column('minor', String, ForeignKey('minor.minor'), primary_key=True)
 )
 
+studentCourse = Table('studentcourse', Base.metadata,
+    Column('netid', String, ForeignKey('student.netid'), primary_key=True),
+    Column('course', String, ForeignKey('course.id'), primary_key=True)
+)
+
 class Student(Base):
 
     # Table name
@@ -30,6 +35,7 @@ class Student(Base):
     dorm            = Column(String, ForeignKey('dorm.dorm'))
     majors          = relationship("Major", secondary=studentMajor)
     minors          = relationship("Minor", secondary=studentMinor)
+    courses         = relationship("Course", secondary=studentCourse)
     orientation     = Column(String)
     identity        = Column(String)
     question        = Column(String)

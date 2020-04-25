@@ -2,8 +2,8 @@ DROP TABLE StudentCourse;
 
 CREATE TABLE StudentCourse(
     netid varchar2(32),
-    crn number,
-    CONSTRAINT pkStudentCourse PRIMARY KEY (netid, crn),
+    course varchar2(32),
+    CONSTRAINT pkStudentCourse PRIMARY KEY (netid, course),
     CONSTRAINT fkCourseNetid FOREIGN KEY (netid) REFERENCES Student(netid),
-    CONSTRAINT fkCourseCRN FOREIGN KEY (crn) REFERENCES Course(crn)
+    CONSTRAINT fkCourseId FOREIGN KEY (course) REFERENCES Course(id)
 );
