@@ -67,18 +67,32 @@ class db:
 
     # Get requests from conversation
     def get_requests(self, netid):
+
+        result = {}
+
         sm = SessionMaker(self.Session)
         with sm as session:
 
-            # Get all requests
+            # Get all requests received
             requests = session.query(Request.sender, Student.firstname, Student.lastname)\
-                            .filter(Request.receiver == netid)\
-                            .join(Student, Request.sender == Student.netid)\
-                            .order_by(desc(Request.timestamp))\
-                            .all()
+                              .filter(Request.receiver == netid)\
+                              .join(Student, Request.sender == Student.netid)\
+                              .order_by(desc(Request.timestamp))\
+                              .all()
 
-            requests = [{  'sender'     : r.sender,
-                           'firstName'  : r.firstname,
-                           'lastName'   : r.lastname } for r in requests ]
+            result['requestsReceived'] = [{  'sender'     : r.sender,
+                                             'firstName'  : r.firstname,
+                                             'lastName'   : r.lastname } for r in requests ]
 
-        return requests
+            # Get all requests sent
+            requests = session.query(Request.receiver, Student.firstname, Student.lastname)\
+                              .filter(Request.sender == netid)\
+                              .join(Student, Request.receiver == Student.netid)\
+                              .order_by(desc(Request.timestamp))\
+                              .all()
+
+            result['requestsSent'] = [{  'sender'     : r.receiver,
+                                         'firstName'  : r.firstname,
+                                         'lastName'   : r.lastname } for r in requests ]
+
+        return result
