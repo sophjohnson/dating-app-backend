@@ -1,7 +1,5 @@
-prompt *** Creating State Table***
-@CRTstate
-prompt *** Creating Student Table***
-@CRTstudent
+prompt *** Create Browse Table***
+@CRTbrowse
 prompt *** Creating Conversation Table***
 @CRTconversation
 prompt *** Creating Course Table***
@@ -30,6 +28,10 @@ prompt *** Creating Recommender Table***
 @CRTrecommender
 prompt *** Creating Request Table***
 @CRTrequest
+prompt *** Creating State Table***
+@CRTstate
+prompt *** Creating Student Table***
+@CRTstudent
 prompt *** Creating StudentCourse Table***
 @CRTstudentCourse
 prompt *** Creating StudentMajor Table***
