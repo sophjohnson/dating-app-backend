@@ -1,6 +1,7 @@
 from sqlalchemy import Column, String, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from ..models.funFact import FunFact
+from ..models.lunch import Lunch
 
 from .base import Base
 
@@ -41,3 +42,4 @@ class Student(Base):
     question        = Column(String)
     image           = Column(String)
     funfacts        = relationship("FunFact", backref="student")
+    lunches         = relationship("Lunch", back_populates="student")

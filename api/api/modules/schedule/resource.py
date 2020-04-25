@@ -10,9 +10,9 @@ class ScheduleResource(object):
     # Parse student's .ics file
     def on_post(self, req, resp, netid):
 
-        # Update student image
-        courses = self.db.parse_schedule(req, netid)
+        # Update student courses and lunches
+        result = self.db.parse_schedule(req, netid)
 
         # On success
-        resp.media = {'courses': courses}
+        resp.media = {'result': result}
         resp.status = HTTP_200

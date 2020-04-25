@@ -1,6 +1,6 @@
 from ...models.request import Request
 from ...models.student import Student
-from ...utils import SessionMaker, get_curr_time, format_time
+from ...utils import SessionMaker, get_curr_time
 from ..recommender.db import db as rdb
 from sqlalchemy import and_, desc
 from falcon import HTTPBadRequest
