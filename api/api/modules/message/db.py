@@ -1,6 +1,6 @@
 from ...models.message import Message
 from ...models.student import Student
-from ...utils import SessionMaker, get_curr_time, get_earliest_time, format_time
+from ...utils import SessionMaker, get_curr_time, get_earliest_time, format_datetime
 from ..conversation.db import db as cdb
 
 class db:
@@ -69,6 +69,6 @@ class db:
                            'sender'    : m.sender,
                            'receiver'  : m.receiver,
                            'content'   : m.content,
-                           'timestamp' : format_time(m.timestamp) } for m in messages ]
+                           'timestamp' : format_datetime(m.timestamp) } for m in messages ]
 
         return messages

@@ -15,6 +15,7 @@ from .modules.minor.resource import MinorResource
 from .modules.recommendation.resource import RecommendationResource
 from .modules.recommender.resource import RecommenderResource
 from .modules.request.resource import RequestResource
+from .modules.schedule.resource import ScheduleResource
 from .modules.state.resource import StateResource
 from .modules.student.resource import StudentResource, StudentSpecificResource
 
@@ -48,6 +49,7 @@ def create_api():
     request         = RequestResource(Session)
     recommendation  = RecommendationResource(Session)
     recommender     = RecommenderResource(Session)
+    schedule        = ScheduleResource(Session)
     state           = StateResource(Session)
     student         = StudentResource(Session)
     studentSpecific = StudentSpecificResource(Session)
@@ -67,6 +69,7 @@ def create_api():
     api.add_route('/requests', request)
     api.add_route('/recommendation', recommendation)
     api.add_route('/recommenders', recommender)
+    api.add_route('/schedules/{netid}', schedule)
     api.add_route('/states', state)
     api.add_route('/students', student)
     api.add_route('/students/{netid}', studentSpecific)

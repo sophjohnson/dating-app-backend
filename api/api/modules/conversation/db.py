@@ -1,7 +1,7 @@
 from ...models.conversation import Conversation
 from ...models.student import Student
 from ...models.message import Message
-from ...utils import SessionMaker, format_time
+from ...utils import SessionMaker, format_datetime
 from sqlalchemy import desc, and_
 
 class db:
@@ -77,6 +77,6 @@ class db:
                 'sender'    : lastMessage.sender,
                 'receiver'  : lastMessage.receiver,
                 'content'   : lastMessage.content,
-                'timestamp' : format_time(lastMessage.timestamp) }
+                'timestamp' : format_datetime(lastMessage.timestamp) }
 
         return details

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from pytz import timezone
 
 class CORSComponent(object):
@@ -37,11 +37,28 @@ class SessionMaker():
         self.session.close()
 
 # Functions for timestamp formatting
-def format_time(ts):
+class TimeWindow():
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+
+def format_datetime(ts):
     return ts.strftime("%m/%d/%y, %I:%M %p")
 
+def format_time(ts):
+    ts = datetime.combine(date.today(), ts)
+    return ts.strftime("%I:%M %p")
+
+# Get current time
 def get_curr_time():
     return datetime.now().astimezone(timezone('US/Eastern'))
 
+# Get earliest representable datetime (for comparison)
 def get_earliest_time():
     return datetime.min
+
+# Get difference between two time objects
+def get_time_difference(date1, date2):
+    date1 = datetime.combine(date.today(), date1)
+    date2 = datetime.combine(date.today(), date2)
+    return (date1 - date2).seconds // 60
