@@ -57,6 +57,10 @@ def get_curr_time():
 def get_earliest_time():
     return datetime.min
 
+# Convert time to datetime
+def to_datetime(ts):
+    return datetime.combine(date.today(), ts)
+
 # Get difference between two time objects
 def get_time_difference(date1, date2):
     date1 = datetime.combine(date.today(), date1)

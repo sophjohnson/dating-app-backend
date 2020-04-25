@@ -12,5 +12,5 @@ class Lunch(Base):
     netid       = Column(String, ForeignKey('student.netid'))
     day         = Column(String)
     starttime   = Column(DateTime)
-    starttime   = Column(DateTime)
+    endtime     = Column(DateTime)
     student     = relationship("Student", back_populates="lunches")
