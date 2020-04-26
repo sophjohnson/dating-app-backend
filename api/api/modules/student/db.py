@@ -29,46 +29,21 @@ class db:
         return student is not None
 
    # Create new account
-    def create_student(self, body):
+    def create_student(self, netid, password):
 
         # Create account and profile
         sm = SessionMaker(self.Session)
         with sm as session:
             student = Student(
-                netid           = body['netid'],
-                password        = hash_password(body['password']),
-                firstname       = body['firstName'],
-                lastname        = body['lastName'],
-                gradyear        = body['gradYear'],
-                city            = body['city'],
-                state           = body['state'],
-                dorm            = self.unpack_dorm(body['dorm']),
-                majors          = self.unpack_majors(body['majors']),
-                minors          = self.unpack_minors(body['minors']),
-                orientation     = body['sexualOrientation'],
-                identity        = body['genderIdentity'],
-                question        = body['question']
+                netid           = netid,
+                password        = hash_password(password)
             )
             session.add(student)
             session.commit()
 
             # Add preferences
             preferences = Preferences(
-                netid               = body['netid'],
-                temperament         = body['temperament'],
-                giveaffection       = body['giveAffection'],
-                trait               = body['trait'],
-                idealdate           = body['idealDate'],
-                fridaynight         = body['fridayNight'],
-                dininghall          = body['diningHall'],
-                studyspot           = body['studySpot'],
-                mass                = body['mass'],
-                club                = body['club'],
-                gameday             = body['gameDay'],
-                hour                = body['hour'],
-                idealtemperament    = body['idealTemperament'],
-                receiveaffection    = body['receiveAffection'],
-                idealtrait          = body['idealTrait']
+                netid               = netid
             )
             session.add(preferences)
             session.commit()

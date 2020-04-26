@@ -29,7 +29,6 @@ class db:
             if firstMessage:
 
                 question = session.query(Student.question).filter(Student.netid == receiver).scalar()
-                print(question)
                 message = Message(
                     conversation    = id,
                     sender          = receiver,

@@ -1,6 +1,7 @@
 from ...models.recommendation import Recommendation
 from ...utils import SessionMaker, get_curr_time
 from ..message.db import db as mdb
+from falcon import HTTPBadRequest
 from sqlalchemy import and_
 
 class db:
@@ -70,9 +71,9 @@ class db:
         with sm as session:
             # Get all conversations
             recommendation = session.query(Recommendation.viewee, Recommendation.recommendedby)\
-                           .filter(and_(Recommendation.viewer == netid, Recommendation.status == 'pending'))\
-                           .order_by(Recommendation.timestamp)\
-                           .first()
+                                    .filter(and_(Recommendation.viewer == netid, Recommendation.status == 'pending'))\
+                                    .order_by(Recommendation.timestamp)\
+                                    .first()
 
             if recommendation is None:
                 return None

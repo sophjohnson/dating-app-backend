@@ -3,6 +3,7 @@ from falcon import HTTPBadRequest, HTTP_200
 from .db import db
 from ..student.db import db as sdb
 from ..recommender.db import db as rdb
+from ..compatibility.db import db as cdb
 
 class RecommendationResource(object):
 
@@ -10,6 +11,7 @@ class RecommendationResource(object):
         self.db = db(Session)
         self.sdb = sdb(Session)
         self.rdb = rdb(Session)
+        self.cdb = cdb(Session)
 
     # Updates status of recommendation
     def on_put(self, req, resp):
@@ -42,17 +44,19 @@ class RecommendationResource(object):
     def on_get(self, req, resp):
 
         # Check parameters
-        if 'netid' not in req.params:
+        netid = req.params.get('netid', None)
+        if netid is None:
             msg = "Missing or incorrect parameters."
             raise HTTPBadRequest("Bad Request", msg)
 
         # Get recommendation
-        recommendation = self.db.get_recommendation(req.params['netid'])
+        (recommendation, by) = self.db.get_recommendation(netid)
 
         # Find profile information
         if recommendation is not None:
-             result = self.sdb.get_profile(recommendation[0])
-             result['recommendedBy'] = recommendation[1]
+             result = self.sdb.get_profile(recommendation)
+             result['recommendedBy'] = by
+             result['compatibility'] = self.cdb.get_compatibility_score(netid, recommendation)
              resp.media = result
         else:
             resp.media = {}

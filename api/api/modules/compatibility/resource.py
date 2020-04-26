@@ -18,10 +18,10 @@ class CompatibilityResource(object):
 
         response = {}
 
-        #response['interests']   = self.db.get_similarities(viewer, viewee)
-        response['courses']     = self.db.get_courses(viewer, viewee)
-        response['lunches']     = self.db.get_lunches(viewer, viewee)
-        response['messages']    = self.db.get_messages(viewer, viewee)
+        response['compatibility']   = self.db.get_compatibility_score(viewer, viewee)
+        response['courses']         = self.db.get_courses(viewer, viewee)
+        response['lunches']         = self.db.get_lunches(viewer, viewee)
+        response['messages']        = self.db.get_messages(viewer, viewee)
 
         resp.media = response
         resp.status = HTTP_200
