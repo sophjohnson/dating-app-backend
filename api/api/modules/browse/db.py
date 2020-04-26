@@ -6,6 +6,7 @@ from ...models.major import Major
 from ...models.minor import Minor
 from ...utils import SessionMaker
 from ..student.db import db as sdb
+from ..compatibility.db import db as cdb
 from sqlalchemy import and_, or_
 
 class db:
@@ -13,6 +14,7 @@ class db:
     def __init__(self, Session):
         self.Session = Session
         self.sdb = sdb(Session)
+        self.cdb = cdb(Session)
 
     # Create new browse record when viewer has made a decision
     def create_browse(self, viewedFor, netid, viewedBy):
@@ -31,12 +33,18 @@ class db:
     # Get next profile to browse for given netid, by given netid
     def get_browse(self, params, viewFor, viewBy):
 
-        # Get students based on
+        # Get students based on preferences
         students = self.filter_preferences(params, viewFor, viewBy)
 
-        students = [{ 'netid' : s.netid } for s in students ]
+        # Get preferences for viewer
+        sm = SessionMaker(self.Session)
+        with sm as session:
+            netid = session.query(Preferences).filter(Preferences.netid == viewFor).first()
 
-        return students[0]['netid']
+        # Order by compatibility score
+        student = max(students, key=lambda s: self.cdb.calculate_compatibility_score(netid, s))
+
+        return student.netid, self.cdb.calculate_compatibility_score(netid, student)
 
     # Query to filter nonnegotiable preferences and given parameters
     def filter_preferences(self, params, viewFor, viewBy):
@@ -45,7 +53,8 @@ class db:
         with sm as session:
 
             # Start building query
-            query = session.query(Student)
+            query = session.query(Preferences)\
+                           .join(Student.preferences)
 
             # Filter out existing recommendations and students who have been viewed before
             subquery = (session.query(Recommendation.viewee.label('netid'))\

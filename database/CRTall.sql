@@ -6,8 +6,6 @@ prompt *** Creating Course Table***
 @CRTcourse
 prompt *** Creating Dorm Table***
 @CRTdorm
-prompt *** Creating Dance Table***
-@CRTdance
 prompt *** Creating FunFact Table***
 @CRTfunFact
 prompt *** Creating Lunch Table***

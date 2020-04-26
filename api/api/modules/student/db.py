@@ -29,35 +29,21 @@ class db:
         return student is not None
 
    # Create new account
-    def create_student(self, body):
+    def create_student(self, netid, password):
 
         # Create account and profile
         sm = SessionMaker(self.Session)
         with sm as session:
             student = Student(
-                netid           = body['netid'],
-                password        = hash_password(body['password']),
-                firstname       = body['firstName'],
-                lastname        = body['lastName'],
-                gradyear        = body['gradYear'],
-                city            = body['city'],
-                state           = body['state'],
-                dorm            = self.unpack_dorm(body['dorm']),
-                majors          = self.unpack_majors(body['majors']),
-                minors          = self.unpack_minors(body['minors']),
-                orientation     = body['sexualOrientation'],
-                identity        = body['genderIdentity'],
-                question        = body['question']
+                netid           = netid,
+                password        = hash_password(password)
             )
             session.add(student)
             session.commit()
 
             # Add preferences
             preferences = Preferences(
-                netid   = body['netid'],
-                dh      = body['dh'],
-                friday  = body['fridayNights'],
-                mass    = body['attendsMass']
+                netid               = netid
             )
             session.add(preferences)
             session.commit()
@@ -71,12 +57,16 @@ class db:
         sm = SessionMaker(self.Session)
         with sm as session:
 
-            student = session.query(Student).filter(Student.netid == netid).first()
+            result = session.query(Student, Preferences)\
+                            .join(Student.preferences)\
+                            .filter(Student.netid == netid).first()
 
             # If student doesn't exist
-            if student is None:
+            if result is None:
                 msg = "No student exists for given netid."
                 raise HTTPBadRequest("Bad Request", msg)
+
+            (student, pref) = result
 
             if 'majors' in body:
                 student.majors.clear()
@@ -96,6 +86,23 @@ class db:
             student.orientation     = body.get('sexualOrientation', student.orientation)
             student.identity        = body.get('genderIdentity', student.identity)
             student.question        = body.get('question', student.question)
+
+            session.commit()
+
+            pref.temperament         = body.get('temperament', pref.temperament)
+            pref.giveaffection       = body.get('giveAffection', pref.giveaffection)
+            pref.trait               = body.get('trait', pref.trait)
+            pref.idealdate           = body.get('idealDate', pref.idealdate)
+            pref.fridaynight         = body.get('fridayNight', pref.fridaynight)
+            pref.dininghall          = body.get('diningHall', pref.dininghall)
+            pref.studyspot           = body.get('studySpot', pref.studyspot)
+            pref.mass                = body.get('mass', pref.mass)
+            pref.club                = body.get('club', pref.club)
+            pref.gameday             = body.get('gameDay', pref.gameday)
+            pref.hour                = body.get('hour', pref.hour)
+            pref.idealtemperament    = body.get('idealTemperament', pref.idealtemperament)
+            pref.receiveaffection    = body.get('receiveAffection', pref.receiveaffection)
+            pref.idealtrait          = body.get('idealTrait', pref.idealtrait)
 
             session.commit()
 
@@ -130,7 +137,7 @@ class db:
         with sm as session:
 
             result = session.query(Student, Preferences)\
-                                     .join(Preferences, Student.netid == Preferences.netid)\
+                                     .join(Student.preferences)\
                                      .filter(Student.netid == netid).first()
 
             # If student doesn't exist
@@ -154,9 +161,20 @@ class db:
                         'funFacts'          : [ self.format_fun_fact(f) for f in student.funfacts ],
                         'question'          : student.question,
                         'image'             : student.image,
-                        'dh'                : pref.dh,
-                        'fridayNights'      : pref.friday,
-                        'attendsMass'       : pref.mass }
+                        'temperament'       : pref.temperament,
+                        'giveAffection'     : pref.giveaffection,
+                        'trait'             : pref.trait,
+                        'idealDate'         : pref.idealdate,
+                        'fridayNight'       : pref.fridaynight,
+                        'diningHall'        : pref.dininghall,
+                        'studySpot'         : pref.studyspot,
+                        'mass'              : pref.mass,
+                        'club'              : pref.club,
+                        'gameDay'           : pref.gameday,
+                        'hour'              : pref.hour,
+                        'idealTemperament'  : pref.idealtemperament,
+                        'receiveAffection'  : pref.receiveaffection,
+                        'idealTrait'        : pref.idealtrait }
 
         return student
 
