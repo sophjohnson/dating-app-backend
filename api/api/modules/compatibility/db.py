@@ -19,6 +19,16 @@ class db:
     FIRE_AIR    = ELEMENTS['fire']  | ELEMENTS['air']
     EARTH_WATER = ELEMENTS['earth'] | ELEMENTS['water']
 
+    DISTANCE = {
+        'North Quad'    : 'DPAC',
+        'West Quad'     : 'Stepan Center',
+        'Mod Quad'      : 'Pizza Pi',
+        'South Quad'    : 'Jordan Hall',
+        'Far Quad'      : 'campus',
+        'God Quad'      : 'Pasquerilla Center',
+        'East Quad'     : 'The Rock'
+    }
+
     DISPLAY_DAYS = { 'MO' : 'Monday',
                      'TU' : 'Tuesday',
                      'WE' : 'Wednesday',
@@ -107,6 +117,7 @@ class db:
         (s2, s2Pref, s2Dorm) = s2
 
         messages.append('Go {}, amirite?!'.format(s2Dorm.mascot))
+        messages.append('I\'d walk all the way from {} to {} for you'.format(s1Dorm.dorm, self.DISTANCE[s1Dorm.quad]))
         messages.append(self.get_horoscope_mesage(s1Pref.zodiacsign, s2Pref.zodiacsign))
 
         # Live on same quad
@@ -118,7 +129,6 @@ class db:
             messages.append('How about that food at {} today?'.format(s1Pref.dininghall))
         else:
             messages.append('Okay, real talk... {} > {}'.format(s1Pref.dininghall, s2Pref.dininghall))
-
 
         return messages
 
@@ -193,19 +203,19 @@ class db:
         signs = {sign1, sign2}
         for e, vals in self.ELEMENTS.items():
             if signs.issubset(vals):
-                return self.same_element(sign1, sign2, e)
+                return self.same_element_message(sign1, sign2, e)
 
         # If different compatible elements
         if self.check_horoscope(sign1, sign2):
-            return self.different_element(sign1, sign2)
+            return self.different_element_message(sign1, sign2)
 
         # If not compatible
         return 'Oh no, {} and {}? This should be interesting'.format(sign2, sign1)
 
     # Builds message string when zodiac signs from same elements
-    def same_element(self, sign1, sign2, element):
+    def same_element_message(self, sign1, sign2, element):
         return 'Ooohh hey there {}, this {} has been looking for another {} sign :)'.format(sign2, sign1, element)
 
     # Builds message string when zodiac signs from different elements
-    def different_element(self, sign1, sign2):
+    def different_element_message(self, sign1, sign2):
         return '{} + {} = compatible. The stars don\'t lie.'.format(sign2.title(), sign1)

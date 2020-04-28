@@ -16,8 +16,8 @@ class db:
         sm = SessionMaker(self.Session)
         with sm as session:
             recommendation = session.query(Recommendation)\
-                        .filter(and_(Recommendation.viewer == viewer, Recommendation.viewee == viewee))\
-                        .scalar()
+                                    .filter(and_(Recommendation.viewer == viewer, Recommendation.viewee == viewee))\
+                                    .scalar()
         return recommendation is not None
 
     # Create recommendation
