@@ -8,6 +8,8 @@ prompt *** Creating Dorm Table***
 @CRTdorm
 prompt *** Creating FunFact Table***
 @CRTfunFact
+prompt *** Create Gender Table***
+@CRTgender
 prompt *** Creating Lunch Table***
 @CRTlunch
 prompt *** Creating Major Table***
@@ -30,6 +32,8 @@ prompt *** Creating State Table***
 @CRTstate
 prompt *** Creating Student Table***
 @CRTstudent
+prompt *** Create StudentBrowseGender Table***
+@CRTstudentBrowseGender
 prompt *** Creating StudentCourse Table***
 @CRTstudentCourse
 prompt *** Creating StudentMajor Table***

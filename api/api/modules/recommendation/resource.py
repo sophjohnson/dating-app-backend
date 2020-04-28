@@ -55,8 +55,10 @@ class RecommendationResource(object):
         # Find profile information
         if recommendation is not None:
              result = self.sdb.get_profile(recommendation)
-             result['recommendedBy'] = by
-             result['compatibility'] = self.cdb.get_compatibility_score(netid, recommendation)
+             result['recommendedBy']    = by
+             result['compatibility']    = self.cdb.get_compatibility_score(netid, recommendation)
+             result['courses']          = len(self.cdb.get_courses(netid, recommendation))
+             result['lunches']          = len(self.cdb.get_lunches(netid, recommendation))
              resp.media = result
         else:
             resp.media = {}

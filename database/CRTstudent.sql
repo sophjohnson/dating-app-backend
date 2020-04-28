@@ -9,11 +9,12 @@ CREATE TABLE Student(
     city varchar2(32),
     state varchar2(2),
     dorm varchar2(32),
-    orientation varchar2(32),
     identity varchar2(32),
     question varchar2(64),
     image varchar2(32),
+    danceInvite number,
     CONSTRAINT pkStudent PRIMARY KEY (netid),
     CONSTRAINT fkStudentState FOREIGN KEY (state) REFERENCES State(code),
-    CONSTRAINT fkStudentDorm FOREIGN KEY (dorm) REFERENCES Dorm(dorm)
+    CONSTRAINT fkStudentDorm FOREIGN KEY (dorm) REFERENCES Dorm(dorm),
+    CONSTRAINT fkStudentGender FOREIGN KEY (identity) REFERENCES Gender(gender)
 );

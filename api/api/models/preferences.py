@@ -19,6 +19,7 @@ class Preferences(Base):
     club                = Column(String)
     gameday             = Column(String)
     hour                = Column(String)
+    zodiacsign          = Column(String)   
     idealtemperament    = Column(String)
     receiveaffection    = Column(String)
     idealtrait          = Column(String)

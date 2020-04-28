@@ -10,6 +10,7 @@ from ...models.preferences import Preferences
 from ...models.dorm import Dorm
 from ...models.major import Major
 from ...models.minor import Minor
+from ...models.gender import Gender
 from ...utils import SessionMaker
 from ..image.resource import ImageHandler
 
@@ -74,7 +75,14 @@ class db:
                 student.majors = self.unpack_majors(body['majors'])
 
             if 'minors' in body:
+                student.minors.clear()
+                session.commit()
                 student.minors = self.unpack_minors(body['minors'])
+
+            if 'browseGenderIdentity' in body:
+                student.browseidentity.clear()
+                session.commit()
+                student.browseidentity = self.unpack_browse_identity(body['browseGenderIdentity'])
 
             # Handle other updates
             student.firstname       = body.get('firstName', student.firstname)
@@ -83,9 +91,9 @@ class db:
             student.city            = body.get('city', student.city)
             student.state           = body.get('state', student.state)
             student.dorm            = body.get('dorm', student.dorm)
-            student.orientation     = body.get('sexualOrientation', student.orientation)
             student.identity        = body.get('genderIdentity', student.identity)
             student.question        = body.get('question', student.question)
+            student.danceinvite     = body.get('danceInvite', student.danceinvite)
 
             session.commit()
 
@@ -100,6 +108,7 @@ class db:
             pref.club                = body.get('club', pref.club)
             pref.gameday             = body.get('gameDay', pref.gameday)
             pref.hour                = body.get('hour', pref.hour)
+            pref.zodiacsign          = body.get('zodiacSign', pref.zodiacsign)
             pref.idealtemperament    = body.get('idealTemperament', pref.idealtemperament)
             pref.receiveaffection    = body.get('receiveAffection', pref.receiveaffection)
             pref.idealtrait          = body.get('idealTrait', pref.idealtrait)
@@ -147,34 +156,36 @@ class db:
 
             (student, pref) = result
 
-            student = { 'netid'             : student.netid,
-                        'firstName'         : student.firstname,
-                        'lastName'          : student.lastname,
-                        'gradYear'          : student.gradyear,
-                        'majors'            : [ m.major for m in student.majors ],
-                        'minors'            : [ m.minor for m in student.minors ],
-                        'city'              : student.city,
-                        'state'             : student.state,
-                        'dorm'              : student.dorm,
-                        'sexualOrientation' : student.orientation,
-                        'genderIdentity'    : student.identity,
-                        'funFacts'          : [ self.format_fun_fact(f) for f in student.funfacts ],
-                        'question'          : student.question,
-                        'image'             : student.image,
-                        'temperament'       : pref.temperament,
-                        'giveAffection'     : pref.giveaffection,
-                        'trait'             : pref.trait,
-                        'idealDate'         : pref.idealdate,
-                        'fridayNight'       : pref.fridaynight,
-                        'diningHall'        : pref.dininghall,
-                        'studySpot'         : pref.studyspot,
-                        'mass'              : pref.mass,
-                        'club'              : pref.club,
-                        'gameDay'           : pref.gameday,
-                        'hour'              : pref.hour,
-                        'idealTemperament'  : pref.idealtemperament,
-                        'receiveAffection'  : pref.receiveaffection,
-                        'idealTrait'        : pref.idealtrait }
+            student = { 'netid'                 : student.netid,
+                        'firstName'             : student.firstname,
+                        'lastName'              : student.lastname,
+                        'gradYear'              : student.gradyear,
+                        'majors'                : [ m.major for m in student.majors ],
+                        'minors'                : [ m.minor for m in student.minors ],
+                        'city'                  : student.city,
+                        'state'                 : student.state,
+                        'dorm'                  : student.dorm,
+                        'genderIdentity'        : student.identity,
+                        'browseGenderIdentity'  : [ g.gender for g in student.browseidentity ],
+                        'funFacts'              : [ self.format_fun_fact(f) for f in student.funfacts ],
+                        'question'              : student.question,
+                        'image'                 : student.image,
+                        'danceInvite'           : student.danceinvite,
+                        'temperament'           : pref.temperament,
+                        'giveAffection'         : pref.giveaffection,
+                        'trait'                 : pref.trait,
+                        'idealDate'             : pref.idealdate,
+                        'fridayNight'           : pref.fridaynight,
+                        'diningHall'            : pref.dininghall,
+                        'studySpot'             : pref.studyspot,
+                        'mass'                  : pref.mass,
+                        'club'                  : pref.club,
+                        'gameDay'               : pref.gameday,
+                        'hour'                  : pref.hour,
+                        'zodiacSign'            : pref.zodiacsign,
+                        'idealTemperament'      : pref.idealtemperament,
+                        'receiveAffection'      : pref.receiveaffection,
+                        'idealTrait'            : pref.idealtrait }
 
         return student
 
@@ -196,7 +207,8 @@ class db:
                         'dorm'              : student.dorm,
                         'question'          : student.question,
                         'image'             : student.image,
-                        'funFacts'          : [ self.format_fun_fact(f) for f in student.funfacts ] }
+                        'funFacts'          : [ self.format_fun_fact(f) for f in student.funfacts ],
+                        'danceInvite'       : student.danceinvite }
 
         return student
 
@@ -228,6 +240,13 @@ class db:
         with sm as session:
             minors = [ session.query(Minor).filter(Minor.minor == m).first() for m in minors ]
             return [ m for m in minors if m is not None]
+
+    # Get gender objects
+    def unpack_browse_identity(self, genders):
+        sm = SessionMaker(self.Session)
+        with sm as session:
+            genders = [ session.query(Gender).filter(Gender.gender == g).first() for g in genders ]
+            return [ g for g in genders if g is not None]
 
 def hash_password(password):
     salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
