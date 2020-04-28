@@ -13,6 +13,7 @@ CREATE TABLE Preferences(
     club varchar2(32),
     gameDay varchar2(32),
     hour varchar2(32),
+    zodiacSign varchar2(32),
     idealTemperament varchar2(32),
     receiveAffection varchar2(32),
     idealTrait varchar2(32),

@@ -64,11 +64,13 @@ class BrowseResource(object):
             raise HTTPBadRequest("Bad Request", msg)
 
         # Get next profile to browse
-        (netid, score) = self.db.get_browse(req.params, viewFor, viewBy)
+        result = self.db.get_browse(req.params, viewFor, viewBy)
 
         # Find profile information
-        if netid is not None:
-             resp.media = self.sdb.get_profile(netid)
-             resp.media['compatibilityScore'] = score
+        resp.media = {}
+        
+        if result is not None:
+             resp.media = self.sdb.get_profile(result[0])
+             resp.media['compatibilityScore'] = result[1]
 
         resp.status = HTTP_200

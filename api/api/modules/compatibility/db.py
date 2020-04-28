@@ -9,6 +9,16 @@ from ...utils import SessionMaker, get_time_difference, format_time
 
 class db:
 
+    ELEMENTS = {
+        'fire'  : {'aries', 'leo', 'sagittarius'},
+        'earth' : {'taurus', 'virgo', 'capricorn'},
+        'air'   : {'gemini', 'libra', 'aquarius'},
+        'water' : {'cancer', 'scorpio', 'pisces'}
+    }
+
+    FIRE_AIR    = ELEMENTS['fire']  | ELEMENTS['air']
+    EARTH_WATER = ELEMENTS['earth'] | ELEMENTS['water']
+
     DISPLAY_DAYS = { 'MO' : 'Monday',
                      'TU' : 'Tuesday',
                      'WE' : 'Wednesday',
@@ -18,6 +28,7 @@ class db:
     def __init__(self, Session):
         self.Session = Session
 
+    # Find courses in common between two students
     def get_courses(self, student1, student2):
 
         courses = []
@@ -39,6 +50,7 @@ class db:
 
         return courses
 
+    # Find open lunch slots between two students
     def get_lunches(self, student1, student2):
 
         lunches = []
@@ -62,7 +74,7 @@ class db:
 
         return lunches
 
-    # See if overlap at least an hour long
+    # See if overlap is at least an hour long
     def find_lunch_overlap(self, s1, s2):
         lunch   = None
         start   = max(s1.starttime.time(), s2.starttime.time())
@@ -70,7 +82,7 @@ class db:
         if get_time_difference(end, start) >= 60:
             return '{} - {}'.format(format_time(start), format_time(end))
 
-    # Find all similar interests
+    # Build messages based on preferences
     def get_messages(self, student1, student2):
 
         messages = []
@@ -95,6 +107,7 @@ class db:
         (s2, s2Pref, s2Dorm) = s2
 
         messages.append('Go {}, amirite?!'.format(s2Dorm.mascot))
+        messages.append(self.get_horoscope_mesage(s1Pref.zodiacsign, s2Pref.zodiacsign))
 
         # Live on same quad
         if s1Dorm.quad == s2Dorm.quad:
@@ -151,6 +164,8 @@ class db:
             compatibility += 2
         if s1.hour == s2.hour:
             compatibility += 1
+        if self.check_horoscope(s1.zodiacsign, s2.zodiacsign):
+            compatibility += 1
         if s1.idealtemperament == s2.temperament:
             compatibility += 3
         if s1.receiveaffection == s2.giveaffection:
@@ -158,4 +173,39 @@ class db:
         if s1.idealtrait == s2.trait:
             compatibility += 3
 
-        return round(compatibility / 32, 4) * 100
+        return round(compatibility / 34, 4) * 100
+
+    # Check horoscope compatibility
+    def check_horoscope(self, sign1, sign2):
+        signs = {sign1, sign2}
+        if signs.issubset(self.FIRE_AIR) or signs.issubset(self.EARTH_WATER):
+            return True
+        return False
+
+    # Get message based on horoscope
+    def get_horoscope_mesage(self, sign1, sign2):
+
+        # If signs are exactly the same
+        if sign1 == sign2:
+            return 'Two {} signs are better than one.'.format(sign1)
+
+        # If same element
+        signs = {sign1, sign2}
+        for e, vals in self.ELEMENTS.items():
+            if signs.issubset(vals):
+                return self.same_element(sign1, sign2, e)
+
+        # If different compatible elements
+        if self.check_horoscope(sign1, sign2):
+            return self.different_element(sign1, sign2)
+
+        # If not compatible
+        return 'Oh no, {} and {}? This should be interesting'.format(sign2, sign1)
+
+    # Builds message string when zodiac signs from same elements
+    def same_element(self, sign1, sign2, element):
+        return 'Ooohh hey there {}, this {} has been looking for another {} sign :)'.format(sign2, sign1, element)
+
+    # Builds message string when zodiac signs from different elements
+    def different_element(self, sign1, sign2):
+        return '{} + {} = compatible. The stars don\'t lie.'.format(sign2.title(), sign1)

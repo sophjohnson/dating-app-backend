@@ -1,6 +1,6 @@
 sqlplus -S guest/password @CRTall
 
-tables=( state mass dorm major minor )
+tables=( state mass dorm major minor gender )
 for i in "${tables[@]}"
 do
     echo "*** Loading $i.csv...***"

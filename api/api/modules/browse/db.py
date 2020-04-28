@@ -4,6 +4,7 @@ from ...models.preferences import Preferences
 from ...models.recommendation import Recommendation
 from ...models.major import Major
 from ...models.minor import Minor
+from ...models.gender import Gender
 from ...utils import SessionMaker
 from ..student.db import db as sdb
 from ..compatibility.db import db as cdb
@@ -36,6 +37,10 @@ class db:
         # Get students based on preferences
         students = self.filter_preferences(params, viewFor, viewBy)
 
+        # If no students, return
+        if len(students) == 0:
+            return None
+
         # Get preferences for viewer
         sm = SessionMaker(self.Session)
         with sm as session:
@@ -54,7 +59,9 @@ class db:
 
             # Start building query
             query = session.query(Preferences)\
-                           .join(Student.preferences)
+                           .join(Student.preferences)\
+                           .join(Student.browseidentity)\
+                           .filter(Student.netid != viewFor)
 
             # Filter out existing recommendations and students who have been viewed before
             subquery = (session.query(Recommendation.viewee.label('netid'))\
@@ -65,20 +72,19 @@ class db:
 
             query = query.filter(Student.netid.notin_(subquery))
 
-            # Get target student's current preferences
-            student = self.sdb.get_student(viewFor)
-            identity = student['genderIdentity']
-            orientation = student['sexualOrientation']
+            # Get student's gender identity
+            student = session.query(Student.identity)\
+                             .filter(Student.netid == viewFor)\
+                             .first()
 
-            # Gender identity/sexual orientation
-            if identity == 'female' and orientation == 'heterosexual':
-                query = query.filter(and_(Student.identity == 'male', or_(Student.orientation == 'heterosexual', Student.orientation == 'bisexual')))
-            elif identity == 'female' and orientation == 'homosexual':
-                query = query.filter(and_(Student.identity == 'female', or_(Student.orientation == 'homosexual', Student.orientation == 'bisexual')))
-            elif identity == 'male' and orientation == 'heterosexual':
-                query = query.filter(and_(Student.identity == 'female', or_(Student.orientation == 'heterosexual', Student.orientation == 'bisexual')))
-            elif identity == 'male' and orientation == 'homosexual':
-                query = query.filter(and_(Student.identity == 'male', or_(Student.orientation == 'homosexual', Student.orientation == 'bisexual')))
+            query = query.filter(Gender.gender == student.identity)
+
+            # Get all genders student would like to view
+            subquery = session.query(Gender.gender)\
+                              .join(Student.browseidentity)\
+                              .filter(Student.netid == viewFor)
+
+            query = query.filter(Student.identity.in_(subquery))
 
             # Filter by major
             major = params.pop('major', None)
