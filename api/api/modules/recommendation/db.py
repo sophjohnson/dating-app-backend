@@ -1,4 +1,5 @@
 from ...models.recommendation import Recommendation
+from ...models.student import Student 
 from ...utils import SessionMaker, get_curr_time
 from ..message.db import db as mdb
 from falcon import HTTPBadRequest
@@ -78,4 +79,21 @@ class db:
             if recommendation is None:
                 return None
 
-            return recommendation.viewee, recommendation.recommendedby
+            recommendedBy = self.get_recommended_by_name(recommendation.recommendedby)
+
+            return recommendation.viewee, recommendedBy
+
+    def get_recommended_by_name(self, netid):
+
+        sm = SessionMaker(self.Session)
+        with sm as session:
+            student = session.query(Student)\
+                             .filter(Student.netid == netid)\
+                             .first()
+
+            if not student.firstname or not student.lastname:
+                return netid
+
+        return student.firstname + " " + student.lastname
+
+

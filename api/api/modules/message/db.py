@@ -2,6 +2,7 @@ from ...models.message import Message
 from ...models.student import Student
 from ...utils import SessionMaker, get_curr_time, get_earliest_time, format_datetime
 from ..conversation.db import db as cdb
+from sqlalchemy import desc
 
 class db:
 
@@ -60,8 +61,8 @@ class db:
             # Get last 20 messages
             messages = session.query(Message)\
                               .filter(Message.conversation == id)\
-                              .order_by(Message.timestamp)\
-                              .limit(20)\
+                              .order_by(desc(Message.timestamp))\
+                              .limit(50)\
                               .all()
 
             messages = [{  'id'        : m.id,
@@ -69,5 +70,7 @@ class db:
                            'receiver'  : m.receiver,
                            'content'   : m.content,
                            'timestamp' : format_datetime(m.timestamp) } for m in messages ]
+
+            messages.reverse()
 
         return messages

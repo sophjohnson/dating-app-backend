@@ -22,6 +22,7 @@ class CompatibilityResource(object):
         response['courses']         = self.db.get_courses(viewer, viewee)
         response['lunches']         = self.db.get_lunches(viewer, viewee)
         response['messages']        = self.db.get_messages(viewer, viewee)
+        response['mass']            = self.db.get_mass_attendance(viewer, viewee)
 
         resp.media = response
         resp.status = HTTP_200

@@ -35,6 +35,14 @@ class db:
                      'TH' : 'Thursday',
                      'FR' : 'Friday' }
 
+    DAYS = {'Sunday'    : 0,
+            'Monday'    : 1,
+            'Tuesday'   : 2,
+            'Wednesday' : 3,
+            'Thursday'  : 4,
+            'Friday'    : 5,
+            'Saturday'  : 6 }
+
     def __init__(self, Session):
         self.Session = Session
 
@@ -82,11 +90,29 @@ class db:
                     if lunch is not None:
                         lunches.append('{} from {}'.format(self.DISPLAY_DAYS[s1l.day], lunch))
 
+        lunches = list(set(lunches))
+        lunches = sorted(lunches, key=lambda lunch: self.DAYS[lunch.split()[0]])
+
         return lunches
+    
+    # Find if students attend mass regularly 
+    def get_mass_attendance(self, student1, student2):
+
+        sm = SessionMaker(self.Session)
+        with sm as session:
+            s1 = session.query(Preferences)\
+                        .filter(Preferences.netid == student1).first()
+            s2 = session.query(Preferences)\
+                        .filter(Preferences.netid == student2).first()
+        
+        attendsMass = {'day', 'week'}
+        if s1.mass in attendsMass and s2.mass in attendsMass:
+            return True
+
+        return False
 
     # See if overlap is at least an hour long
     def find_lunch_overlap(self, s1, s2):
-        lunch   = None
         start   = max(s1.starttime.time(), s2.starttime.time())
         end     = min(s1.endtime.time(), s2.endtime.time())
         if get_time_difference(end, start) >= 60:

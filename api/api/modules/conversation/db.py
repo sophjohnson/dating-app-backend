@@ -46,16 +46,17 @@ class db:
         sm = SessionMaker(self.Session)
         with sm as session:
             # Get all conversations
-            conversations = (session.query(Conversation.id, Conversation.student1.label('netid'), Student.firstname.label('first'), Student.lastname.label('last'))\
+            conversations = (session.query(Conversation.id, Conversation.student1.label('netid'), Student.firstname.label('first'), Student.lastname.label('last'), Student.image.label('image'))\
                                     .join(Student, Student.netid == Conversation.student1)\
                                     .filter(Conversation.student2.like(netid)))\
                                     .union\
-                            (session.query(Conversation.id, Conversation.student2.label('netid'), Student.firstname.label('first'), Student.lastname.label('last'))\
+                            (session.query(Conversation.id, Conversation.student2.label('netid'), Student.firstname.label('first'), Student.lastname.label('last'), Student.image.label('image'))\
                                     .join(Student, Student.netid == Conversation.student2)\
                                     .filter(Conversation.student1.like(netid)))\
                                     .all()
 
         conversations = [ self.get_details(c) for c in conversations]
+        conversations = sorted(conversations, key = lambda c: c['timestamp'], reverse=True)
 
         return conversations
 
@@ -74,6 +75,7 @@ class db:
                 'netid'     : c.netid,
                 'firstName' : c.first,
                 'lastName'  : c.last,
+                'image'     : c.image,
                 'sender'    : lastMessage.sender,
                 'receiver'  : lastMessage.receiver,
                 'content'   : lastMessage.content,

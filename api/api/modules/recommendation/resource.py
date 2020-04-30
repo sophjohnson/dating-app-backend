@@ -50,10 +50,11 @@ class RecommendationResource(object):
             raise HTTPBadRequest("Bad Request", msg)
 
         # Get recommendation
-        (recommendation, by) = self.db.get_recommendation(netid)
+        result = self.db.get_recommendation(netid)
 
         # Find profile information
-        if recommendation is not None:
+        if result is not None:
+             (recommendation, by) = result
              result = self.sdb.get_profile(recommendation)
              result['recommendedBy']    = by
              result['compatibility']    = self.cdb.get_compatibility_score(netid, recommendation)

@@ -5,6 +5,7 @@ from ...models.student import Student
 from ...models.course import Course
 from ...models.lunch import Lunch
 from ...utils import SessionMaker, TimeWindow, get_time_difference, to_datetime, format_time
+from falcon import HTTPBadRequest
 
 class db:
 
