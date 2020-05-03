@@ -91,7 +91,7 @@ class db:
                               .order_by(desc(Request.timestamp))\
                               .all()
 
-            result['requestsSent'] = [{  'sender'     : r.receiver,
+            result['requestsSent'] = [{  'receiver'     : r.receiver,
                                          'firstName'  : r.firstname,
                                          'lastName'   : r.lastname } for r in requests ]
 
