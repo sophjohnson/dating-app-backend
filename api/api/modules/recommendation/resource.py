@@ -60,6 +60,7 @@ class RecommendationResource(object):
              result['compatibility']    = self.cdb.get_compatibility_score(netid, recommendation)
              result['courses']          = len(self.cdb.get_courses(netid, recommendation))
              result['lunches']          = len(self.cdb.get_lunches(netid, recommendation))
+             result['mass']             = self.cdb.get_mass_attendance(netid, recommendation)
              resp.media = result
         else:
             resp.media = {}
