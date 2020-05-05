@@ -149,6 +149,10 @@ class db:
         # Live on same quad
         if s1Dorm.quad == s2Dorm.quad:
             messages.append('{}, best quad!'.format(s1Dorm.quad))
+        
+        # Has air conditioning
+        if s1Dorm.airconditioning == 1 and s2Dorm.airconditioning == 0:
+            messages.append('You should come to {}, we have air conditioning :P'.format(s1Dorm.dorm))
 
         # Dining hall preferences
         if s1Pref.dininghall == s2Pref.dininghall:
