@@ -29,6 +29,10 @@ class db:
 
             id = funFact.id
 
+        # Return if no image provided
+        if len(req.stream.read()) == 0:
+            return funFact.id
+
         # Save image
         imagePath = self.ImageHandler.save_image(req, netid, id)
 
