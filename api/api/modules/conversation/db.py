@@ -18,7 +18,7 @@ class db:
         sm = SessionMaker(self.Session)
         with sm as session:
             id = session.query(Conversation.id)\
-                        .filter(and_(Conversation.student1.like(s1), Conversation.student2.like(s2)))\
+                        .filter(and_(Conversation.student1 == s1, Conversation.student2 == s2))\
                         .scalar()
         return id
 
@@ -48,11 +48,11 @@ class db:
             # Get all conversations
             conversations = (session.query(Conversation.id, Conversation.student1.label('netid'), Student.firstname.label('first'), Student.lastname.label('last'), Student.image.label('image'))\
                                     .join(Student, Student.netid == Conversation.student1)\
-                                    .filter(Conversation.student2.like(netid)))\
+                                    .filter(Conversation.student2 == netid))\
                                     .union\
                             (session.query(Conversation.id, Conversation.student2.label('netid'), Student.firstname.label('first'), Student.lastname.label('last'), Student.image.label('image'))\
                                     .join(Student, Student.netid == Conversation.student2)\
-                                    .filter(Conversation.student1.like(netid)))\
+                                    .filter(Conversation.student1 == netid))\
                                     .all()
 
         conversations = [ self.get_details(c) for c in conversations]

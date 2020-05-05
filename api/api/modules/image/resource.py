@@ -26,6 +26,10 @@ class ImageHandler(object):
     # Return requested image
     def load_image(self, name):
 
+        if name == 'undefined' or name == 'null':
+            resp.status = HTTP_200
+            return
+
         imagePath = os.path.join(self.storagePath, name)
         stream = io.open(imagePath, 'rb')
         content_length = os.path.getsize(imagePath)
