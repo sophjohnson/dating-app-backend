@@ -29,20 +29,17 @@ class db:
 
             id = funFact.id
 
-        # Return if no image provided
-        if len(req.stream.read()) == 0:
-            return funFact.id
-
         # Save image
         imagePath = self.ImageHandler.save_image(req, netid, id)
 
         # Update fun fact with image path
-        sm = SessionMaker(self.Session)
-        with sm as session:
-            session.query(FunFact)\
-                   .filter(FunFact.id == id)\
-                   .update({'image': imagePath})
-            session.commit()
+        if imagePath is not None:
+            sm = SessionMaker(self.Session)
+            with sm as session:
+                session.query(FunFact)\
+                       .filter(FunFact.id == id)\
+                       .update({'image': imagePath})
+                session.commit()
 
         # Update image path if successful
         return funFact.id
@@ -102,10 +99,10 @@ class db:
 
             # Delete existing image
             if funFact.image is not None:
-                if self.ImageHandler.delete_image(funFact.image):
-                    funFact = session.query(FunFact).filter(FunFact.id == id).delete()
-                    session.commit()
-                else:
-                    return False
+                self.ImageHandler.delete_image(funFact.image)
 
-        return True
+            funFact = session.query(FunFact).filter(FunFact.id == id).delete()
+            session.commit()
+            return True
+
+        return False

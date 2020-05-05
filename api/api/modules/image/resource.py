@@ -50,6 +50,10 @@ class ImageHandler(object):
 
                 imageFile.write(chunk)
 
+        # Check if file is empty
+        if os.stat(imagePath).st_size == 0:
+            name = None
+
         return name
 
     # Delete image from deleted fun fact
